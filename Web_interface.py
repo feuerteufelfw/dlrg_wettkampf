@@ -12,7 +12,7 @@ UPLOAD_FOLDER = os.path.join(os.getcwd(), 'files')
 app = flask.Flask(__name__,static_folder='static')
 time_file = os.path.join(basedir, 'time')
 config_file = os.path.join(basedir, 'config')
-teilnehmer_file = os.path.join(basedir, 'teilnehmer')
+teilnehmer_file = basedir + '/files'
 urkunden_file = basedir  + "/files/Urkunden_Zusammenfassung"
 print(basedir)
 print(urkunden_file)
@@ -47,7 +47,8 @@ def index():
         elif flask.request.form.get('home') == 'home':
             return  flask.render_template('home.html')
         elif flask.request.form.get('zeitmessung_start') == 'zeitmessung start':
-            return flask.render_template('zeit_stoppen.html',visibility="hidden",visibility_startup="visible")
+            disziplinen_list = ["2000m", "500m", "1000m"]
+            return flask.render_template('zeit_stoppen.html',visibility="hidden",visibility_startup="visible",disziplinen=disziplinen_list)
             print('config uploade')
         else:
             pass  #
@@ -101,13 +102,13 @@ def upload_teilnehmer():
         print('uploade teilnehmer file')
         f = flask.request.files.get('file')
         if f:
-            file_path = os.path.join(teilnehmer_file + f.filename)
+            file_path = teilnehmer_file + '/' + f.filename
             f.save(file_path)
             main.new_teilnehmer()
-            return flask.render_template("home.html")
+            return flask.render_template("einstellungen.html")
         if flask.request.form.get('home') == 'home':
             return flask.render_template('home.html')
-        return flask.render_template("home.html")
+        return flask.render_template("einstellungen.html")
 @app.route('/zeit_messung',methods=[ 'POST','GET'])
 def zeit_messung():
     print("zeit messung")
@@ -115,26 +116,27 @@ def zeit_messung():
         if flask.request.form.get('back_button') == 'back':
             Web_interface.temp_class.temp_teilnehmer_nummer = temp_class.temp_teilnehmer_nummer[0:len(temp_class.temp_teilnehmer_nummer) - 1]
             print('back button push')
-            return flask.render_template('zeit_stoppen.html', prediction_text=str(temp_class.temp_teilnehmer_nummer))
+            return flask.render_template('zeit_stoppen.html', prediction_text=str(temp_class.temp_teilnehmer_nummer),visibility_startup="hidden",visibility="visible",disziplin=disziplin)
         elif flask.request.form.get('enter_button') == 'enter':
             print('enter button push')
             temp_class.last_teilnehmer_list.append(temp_class.temp_teilnehmer_nummer)
             main.stoppuhr.new_time(main.stoppuhr,temp_class.temp_teilnehmer_nummer,temp_class.start_time)
             temp_class.temp_teilnehmer_nummer = ''
-            return flask.render_template('zeit_stoppen.html', prediction_text=' ')
+            return flask.render_template('zeit_stoppen.html', prediction_text=' ',visibility_startup="hidden",visibility="visible",disziplin=disziplin)
         elif flask.request.form.get('start_button') == 'start':
-            disziplin = flask.request.form["disziplin_textfield"]
-            if disziplin:
-                temp_class.disziplin = disziplin
+            speicher.disziplin = flask.request.form["Disziplin"]
+            print(speicher.disziplin)
+            if speicher.disziplin:
+                temp_class.disziplin = speicher.disziplin
                 temp_class.start_time = time.monotonic()
                 print('hi')
-                return flask.render_template('zeit_stoppen.html',visibility="visible",visibility_startup="hidden")
+                return flask.render_template('zeit_stoppen.html',visibility="visible",visibility_startup="hidden",disziplin=speicher.disziplin)
             else:
-                return flask.render_template('zeit_stoppen.html',visibility = "hidden",visibillity_startup = 'visible')
+                return flask.render_template('zeit_stoppen.html',visibility = "hidden",visibillity_startup = 'visible',disziplin=speicher.disziplin)
         elif flask.request.form.get('Zahlen_button'):
             temp_class.temp_teilnehmer_nummer  = temp_class.temp_teilnehmer_nummer + str(flask.request.form.get('Zahlen_button'))
             print(flask.request.form.get('Zahlen_button'))
-            return flask.render_template('zeit_stoppen.html', prediction_text=str(temp_class.temp_teilnehmer_nummer ),visibility ="visible",visibility_startip='hidden')
+            return flask.render_template('zeit_stoppen.html', prediction_text=str(temp_class.temp_teilnehmer_nummer ),visibility ="visible",visibility_startup='hidden',disziplin=speicher.disziplin)
         elif flask.request.form.get("home_button") == "home":
             return flask.render_template("home.html")
 

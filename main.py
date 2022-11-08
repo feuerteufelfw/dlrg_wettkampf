@@ -27,6 +27,7 @@ class speicher:
         self.zwischenspeicher_file=''
         self.Zeiten_file =''
         self.teilnehmer_file_excl=''
+        self.disziplinen_list = ["2000m","500m","1000m"]
 def loade_config():
     config_file = os.path.abspath(".") + '\\config.txt'
     if config_file:

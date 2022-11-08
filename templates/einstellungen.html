@@ -52,31 +52,7 @@
     {# You can get the success response from server like this: #}
     {#{ dropzone.config(custom_options="success: function(file, response){console.log(response);}") }#}
    </neue_teilnehmer>
-    <neue_zeiten class ='neue_zeiten' method="post" action="/upload_zeiten">
-    <p> Neue Zeiten: </p>
-    {{ dropzone.create(action='upload_teilnehmer') }}
-    {{ dropzone.load_js() }}
-    {{ dropzone.config() }}
-    {{ dropzone.style('
-        max-width: 1576px;
-        height: 72px;
-        padding: 24px;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        font-family: "Roboto", sans-serif;
-        font-weight: 400;
-        font-size: 12px;
-        cursor: pointer;
-        color: #cccccc;
-        border: dashed;
-        border-radius: 4px;
-    ')}}
-    {# You can get the success response from server like this: #}
-    {#{ dropzone.config(custom_options="success: function(file, response){console.log(response);}") }#}
-   </neue_zeiten>
-        </form>
+
 
 </body>
 </html>

@@ -7,29 +7,38 @@
 </head>
  <body >
  <p>Dies ist eine Überschrift</p>
-	<div class="startup" style="visibility:{{ visibility_startup }};sty">
+	<div class="startup" style="visibility:{{ visibility_startup }};">
 		<form method="post" action="/zeit_messung">
 			<input type="submit" value="start" name="start_button"/>
-			<p>Field1 <input type = "text" id = "Disziplin" name = "disziplin_textfield" /></p>
+			<label>Disziplin:</label>
+			<select name="Disziplin">
+			{%for text in disziplinen %}
+            <option value="{{text}}">{{text}}</option>
+            {% endfor %}
+        </select>
 		</form>
 	</div>		
     <div class="calbottom" style="visibility:{{ visibility }}">
-    <form method="post" action="/zeit_messung">
-    <input type="submit" value="1" name="Zahlen_button"/>
-	<input type="submit" value="2" name="Zahlen_button"/>
-	<input type="submit" value="3" name="Zahlen_button"/>
-	<input type="submit" value="4" name="Zahlen_button"/>
-	<input type="submit" value="5" name="Zahlen_button"/>
-	<input type="submit" value="6" name="Zahlen_button"/>
-	<input type="submit" value="7" name="Zahlen_button"/>
-	<input type="submit" value="8" name="Zahlen_button"/>
-	<input type="submit" value="9" name="Zahlen_button"/>
-	<input type="submit" value="0" name="Zahlen_button"/>
-	<input type="submit" value="back" name="back_button"/>
-	<input type="submit" value="enter" name="enter_button"/>
-    <input type="submit" value="home" name="home_button"/>
-</form>
-{{ prediction_text }}
+		 <p>Strecke: {{disziplin}}</p>
+		<form method="post" action="/zeit_messung">
+			<input type="submit" value="1" name="Zahlen_button"/>
+			<input type="submit" value="2" name="Zahlen_button"/>
+			<input type="submit" value="3" name="Zahlen_button"/>
+			<input type="submit" value="4" name="Zahlen_button"/>
+			<input type="submit" value="5" name="Zahlen_button"/>
+			<input type="submit" value="6" name="Zahlen_button"/>
+			<input type="submit" value="7" name="Zahlen_button"/>
+			<input type="submit" value="8" name="Zahlen_button"/>
+			<input type="submit" value="9" name="Zahlen_button"/>
+			<input type="submit" value="0" name="Zahlen_button"/>
+			<input type="submit" value="back" name="back_button"/>
+			<input type="submit" value="enter" name="enter_button"/>
+			<input type="submit" value="home" name="home_button"/>
+			<br>
+			<p>Teilnehmernummer:  {{prediction_text}}</p>
+
+	</form>
+
   </div>
   
 </body>
