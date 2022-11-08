@@ -9,11 +9,11 @@ import time
 #____________________________________________________definition aller verwendeten pfade
 basedir = os.path.abspath(os.path.dirname(__file__))
 UPLOAD_FOLDER = os.path.join(os.getcwd(), 'uploads')
-app = Flask(__name__,template_folder='tamplate')
+app = Flask(__name__,template_folder='template')
 time_file = os.path.join(basedir, 'time')
 config_file = os.path.join(basedir, 'config')
 teilnehmer_file = os.path.join(basedir, 'teilnehmer')
-urkunden_file = UPLOAD_FOLDER,'\\Urkunden\\'
+urkunden_file = UPLOAD_FOLDER,"/Urkunden_Zusammenfassung/"
 #________________________________________________________________________________________
 temp_test = 'hi'
 app.config.update(

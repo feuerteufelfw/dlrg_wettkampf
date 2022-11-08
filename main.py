@@ -39,21 +39,21 @@ def loade_config():
     stoppuhr.ort = 'Blossin'
     stoppuhr.veranstalter_vorname = 'Martin'
     stoppuhr.veranstalter_nachname = 'Krüger'
-    config_file = os.path.abspath(".") + '\\config.txt'
+    config_file = os.path.abspath(".") + 'files/config.txt'
     speicher.config_file = config_file
-    urkunde_file = os.path.abspath(".") + '\\Urkunde.docx'
+    urkunde_file = os.path.abspath(".") + 'files/Urkunde.docx'
     speicher.urkunde_file = urkunde_file
-    Teilnehmer_file_excl = os.path.abspath(".") + '\\Teilnehmer.xlsx'
+    Teilnehmer_file_excl = os.path.abspath(".") + '/files/Teilnehmer.xlsx'
     speicher.teilnehmer_file_excl = Teilnehmer_file_excl
-    Zeiten_file = os.path.abspath(".") + '\\zeiten.csv'
+    Zeiten_file = os.path.abspath(".") + '/files/zeiten.csv'
     speicher.Zeiten_file = Zeiten_file
-    zwischenspeicher_file = os.path.abspath(".") + '\\temp\\Urkunden_Zusammenfassung'
+    zwischenspeicher_file = os.path.abspath(".") + '/files/Urkunden_Zusammenfassung'
     speicher.zwischenspeicher_file = zwischenspeicher_file
-    urkunden_Output_file = os.path.abspath(".") + '\\Urkunden_Gesamt.pdf'
+    urkunden_Output_file = os.path.abspath(".") + '/files/Urkunden_Gesamt.pdf'
     speicher.urkunde_output_file = urkunden_Output_file
-    new_teilnehmer_file = os.path.abspath(".") + '\\teilnehmer\\Teilnehmer.xlsx'
+    new_teilnehmer_file = os.path.abspath(".") + '/files/Teilnehmer.xlsx'
     speicher.new_teilnehmer_file = new_teilnehmer_file
-    new_zeiten_file = os.path.abspath(".") + '\\time\\zeiten.csv'
+    new_zeiten_file = os.path.abspath(".") + '/files/zeiten.csv'
     speicher.new_zeiten_file=new_zeiten_file
 def auswertung(disziplin):
     print('Auswertung start')
