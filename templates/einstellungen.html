@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href='C:\Users\feuer\OneDrive\Dokumente\DLRG\Wettkampfrechner\tamplate\einstellungen.css'>
@@ -14,34 +15,19 @@
         <p>Datum: </p>
         <input type="submit" value="neues Datum" name="neues_datum"/>
         <input type = "text" id = "datum" name = "datum_textfield" />
-    </form>
-    <p>Disziplin: </p>
-    <neue_urkunde class ='neue_urkunde' method="post" action="/upload_urkunde" >
-        <input type = "text" name = "disziplin_textfield" method="post" action="uploade_urkunde" />
 
-    <p> Urkunde für die Disziplin: </p>
-     {{ dropzone.create(action='upload_urkunde') }}
+    </form>
+    <form method="POST" action="/uploade_urkunde" >
+        <p> Urkunde </p>
+  </form>
+    <uploade_urkunde class ='uploade_urkunde' method="POST"  action="/uploade_urkunde" >
+     {{ dropzone.create(action='/uploade_urkunde') }}
     {{ dropzone.load_js() }}
     {{ dropzone.config() }}
-    {{ dropzone.style('
-        max-width: 1576px;
-        height: 72px;
-        padding: 24px;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        font-family: "Roboto", sans-serif;
-        font-weight: 400;
-        font-size: 12px;
-        cursor: pointer;
-        color: #cccccc;
-        border: dashed;
-        border-radius: 4px;
-    ')}}
+
     {# You can get the success response from server like this: #}
     {#{ dropzone.config(custom_options="success: function(file, response){console.log(response);}") }#}
-        </neue_urkunde>
+</uploade_urkunde>
      <p> Neue Teilnehmer: </p>
    <neue_teilnehmer class ='neue_teilnehmer' method="post" action="/upload_teilnehmer" >
     {{ dropzone.create(action='upload_teilnehmer') }}
