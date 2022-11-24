@@ -2,9 +2,12 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
-        <title>Files</title>
+        <title>Files uploade</title>
     </head>
     <body>
+    <form method="post" action="/" >
+        <input type="submit" value="home" name="home" />
+    </form>
         <h1>Download upload files</h1>
         <hr>
         <ul>
@@ -13,6 +16,7 @@
 				<li><a href="{{ url_for('download', filename=file) }}">{{ file }}</a></li>
 				{% endfor %}
 			</form>
+
         </ul>
     </body>
 </html>

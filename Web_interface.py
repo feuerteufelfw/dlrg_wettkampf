@@ -47,7 +47,7 @@ def index():
         elif flask.request.form.get('home') == 'home':
             return  flask.render_template('home.html')
         elif flask.request.form.get('zeitmessung_start') == 'zeitmessung start':
-            disziplinen_list = ["2000m", "500m", "1000m"]
+            disziplinen_list = main.get_disziplinen()
             return flask.render_template('zeit_stoppen.html',visibility="hidden",visibility_startup="visible",disziplinen=disziplinen_list)
             print('config uploade')
         else:
@@ -104,7 +104,7 @@ def upload_teilnehmer():
         if f:
             file_path = teilnehmer_file + '/' + f.filename
             f.save(file_path)
-            main.new_teilnehmer()
+            #main.new_teilnehmer()
             return flask.render_template("einstellungen.html")
         if flask.request.form.get('home') == 'home':
             return flask.render_template('home.html')
@@ -116,13 +116,13 @@ def zeit_messung():
         if flask.request.form.get('back_button') == 'back':
             Web_interface.temp_class.temp_teilnehmer_nummer = temp_class.temp_teilnehmer_nummer[0:len(temp_class.temp_teilnehmer_nummer) - 1]
             print('back button push')
-            return flask.render_template('zeit_stoppen.html', prediction_text=str(temp_class.temp_teilnehmer_nummer),visibility_startup="hidden",visibility="visible",disziplin=disziplin)
+            return flask.render_template('zeit_stoppen.html', prediction_text=str(temp_class.temp_teilnehmer_nummer),visibility_startup="hidden",visibility="visible",disziplin=speicher.disziplin)
         elif flask.request.form.get('enter_button') == 'enter':
             print('enter button push')
             temp_class.last_teilnehmer_list.append(temp_class.temp_teilnehmer_nummer)
             main.stoppuhr.new_time(main.stoppuhr,temp_class.temp_teilnehmer_nummer,temp_class.start_time)
             temp_class.temp_teilnehmer_nummer = ''
-            return flask.render_template('zeit_stoppen.html', prediction_text=' ',visibility_startup="hidden",visibility="visible",disziplin=disziplin)
+            return flask.render_template('zeit_stoppen.html', prediction_text=' ',visibility_startup="hidden",visibility="visible",disziplin=speicher.disziplin)
         elif flask.request.form.get('start_button') == 'start':
             speicher.disziplin = flask.request.form["Disziplin"]
             print(speicher.disziplin)
@@ -153,6 +153,12 @@ def einstellungen():
             print("Datum: " + datum)
         elif flask.request.form.get('uploade_button'):
             return flask.render_template('einstellungen.html',uploade_file_display='block')
+        elif flask.request.form.get('home')=='home':
+            print('home website aufgerufen')
+            return flask.render_template('home.html')
+        elif flask.request.form.get("reset_button") == 'reset':
+            main.reset()
+            return  flask.render_template('einstellungen.html',uploade_file_display='block')
 @app.route('/files',methods=['POST','GET'])
 def files():
     print('files')

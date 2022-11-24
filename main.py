@@ -15,6 +15,8 @@ t = 1
 start_time = ''
 #zum speichern von variablen welche von überall abgerufen werden können
 class speicher:
+
+
     def __init__(self):
         self.ort = ''
         self.veranstalter_vorname = ''
@@ -30,17 +32,17 @@ class speicher:
         self.disziplinen_list = ["2000m","500m","1000m"]
 def loade_config():
     config_file = os.path.abspath(".") + '\\config.txt'
-    if config_file:
-        with open(config_file) as txt_config_datei:
-            config_lines = txt_config_datei.readlines()
-            for item in config_lines:
-                print(item)
+    #if config_file :
+    #    with open(config_file) as txt_config_datei:
+    #        config_lines = txt_config_datei.readlines()
+    #        for item in config_lines:
+    #            print(item)
     #muss noch aus config datei geladen werden
     #übertrag in speicher class für leichteren zugriff
     stoppuhr.ort = 'Blossin'
     stoppuhr.veranstalter_vorname = 'Martin'
     stoppuhr.veranstalter_nachname = 'Krüger'
-    config_file = os.path.abspath(".") + 'files/config.txt'
+    #config_file = os.path.abspath(".") + 'files/config.txt'
     speicher.config_file = config_file
     urkunde_file = os.path.abspath(".") + 'files/Urkunde.docx'
     speicher.urkunde_file = urkunde_file
@@ -56,132 +58,139 @@ def loade_config():
     speicher.new_teilnehmer_file = new_teilnehmer_file
     new_zeiten_file = os.path.abspath(".") + '/files/zeiten.csv'
     speicher.new_zeiten_file=new_zeiten_file
-def auswertung(disziplin):
-    print('Auswertung start')
-    #auslesen der einzlenen Tielnehmer Daten
-    with open(speicher.Zeiten_file) as csvdatei:
-        dataframe1 = pd.read_excel('Teilnehmer.xlsx',index_col = False)
-        csv_reader_object =csv.reader(csvdatei)
-        y = 1
-        x = 1
-       # print(csv_reader_object)
-        list_teilnehmer_dict = []
-        for row in csv_reader_object:
-            row = row[0]
-            teilnehmer_nummer = row.split('"')[0]
-            teilnehmer_nummer = teilnehmer_nummer.split(',')[0]
-            teilnehmer = dataframe1.loc[dataframe1['Teilnehmer Nummer'] == teilnehmer_nummer]
-            teilnehmer_Zeit = row.split('"')[1]
-            teilnehmer_Zeit = teilnehmer_Zeit.split(',')[0] + ':' + teilnehmer_Zeit.split(',')[1] + ':' + teilnehmer_Zeit.split(',')[2]
-            teilnehmer_Vorname = teilnehmer['Vorname'].to_string(index = False)
-            teilnehmer_Nachname =  teilnehmer['Nachname'].to_string(index = False)
-            teilnehmer_Verein = teilnehmer['Verein'].to_string(index=False)
-            teilnehmer_Altersklasse = teilnehmer['Altersklasse'].to_string(index=False)
-            teilnehmer_Disziplin = teilnehmer['Disziplin'].to_string(index=False)
-           # print('vorname ' + teilnehmer['Vorname'])
-            cust_1 = {
-                'teilnehmer_Vorname': teilnehmer_Vorname,
-                'teilnehmer_Nachname': teilnehmer_Nachname,
-                'teilnehmer_Altersklasse': teilnehmer_Altersklasse,
-                'teilnehmer_Verein': teilnehmer_Verein,
-                'teilnehmer_Disziplin': teilnehmer_Disziplin,
-                'teilnehmer_Zeit': teilnehmer_Zeit,
-                'ort': speicher.ort,
-                'veranstalter_Vorname': speicher.veranstalter_vorname,
-                'veranstalter_Nachname': speicher.veranstalter_nachname,
-            }
-            list_teilnehmer_dict.append(cust_1)
-            if y == 10:
-                write_to_docx(list_teilnehmer_dict,x)
-                list_teilnehmer_dict = []
-                y = 0
-                x = x + 1
-            y = y+1
-        if list_teilnehmer_dict:
-            write_to_docx(list_teilnehmer_dict, x)
-        docx_to_pdf()
-        merge_to_pdf(disziplin)
-           # time.sleep(0.2)
-def merge_to_pdf(disziplin):
-    print('merge pdf')
-    check = True
-    x = 1
-    merger = PdfMerger()
-    while  check == True:
-        if os.path.exists(os.path.abspath(".") + '\\temp\\document_' + str(x) + '.pdf'):
-            print(str(x))
-            merger.append(os.path.abspath(".") + '\\temp\\document_' + str(x) + '.pdf')
-            x = x+1
-        else:
-            check = False
-    merger.write(speicher.urkunden_Output_file)
-    merger.close()
-def docx_to_pdf():
-    print('Convert docx to pdf')
-    check = True
-    x = 1
-    while check == True:
-        if os.path.exists(os.path.abspath(".") + '\\temp\\Urkunden_Zusammenfassung' + str(x) + '.docx'):
-            print(str(x))
-            inputFile = os.path.abspath(".") + '\\temp\\Urkunden_Zusammenfassung' + str(x) + '.docx'
-            outputFile = os.path.abspath(".") + '\\temp\\document_' + str(x) + '.pdf'
-            file = open(outputFile, "w")
-            file.close()
-            convert(inputFile, outputFile)
-            print(str(x))
-            x = x+1
-        else:
-            check = False
-def write_to_docx(list_teilnehmer_dict,y):
-    #print(list_teilnehmer_dict)
-    Urkunden_dokument = mailmerge(speicher.urkunde_file)
-    x = 0
-    # erstellt dynamisch bis zu 10 dictionary die jeweils die daten zu einen Teilnehmer erhalten diese werden dann zusammen in eine word datei geschrieben
-    # dies ist effizienter als jeden teilnehmer einzelt in eine word datei zu schreiben
-    #eventuell erweiterung in 10ner schritte zur steigerung der effiziens
-    for i in list_teilnehmer_dict:
-        x =x+1
-        globals()[f"cust_{x}"] = {
-            'teilnehmer_Vorname': i['teilnehmer_Vorname'],
-            'teilnehmer_Nachname': i['teilnehmer_Nachname'],
-            'teilnehmer_Altersklasse': i['teilnehmer_Altersklasse'],
-            'teilnehmer_Verein': i['teilnehmer_Verein'],
-            'teilnehmer_Disziplin': i['teilnehmer_Disziplin'],
-            'teilnehmer_Zeit': i['teilnehmer_Zeit'],
-            'ort': i['ort'],
-            'veranstalter_Vorname': i['veranstalter_Vorname'],
-            'veranstalter_Nachname': i['veranstalter_Nachname']
+class auswertung():
+    def auswertung(self,disziplin):
+        print('Auswertung start')
+        #auslesen der einzlenen Tielnehmer Daten
+        with open(speicher.Zeiten_file) as csvdatei:
+            dataframe1 = pd.read_excel('Teilnehmer.xlsx',index_col = False)
+            csv_reader_object =csv.reader(csvdatei)
+            y = 1
+            x = 1
+           # print(csv_reader_object)
+            list_teilnehmer_dict = []
+            for row in csv_reader_object:
+                row = row[0]
+                teilnehmer_nummer = row.split('"')[0]
+                teilnehmer_nummer = teilnehmer_nummer.split(',')[0]
+                teilnehmer = dataframe1.loc[dataframe1['Teilnehmer Nummer'] == teilnehmer_nummer]
+                teilnehmer_Zeit = row.split('"')[1]
+                teilnehmer_Zeit = teilnehmer_Zeit.split(',')[0] + ':' + teilnehmer_Zeit.split(',')[1] + ':' + teilnehmer_Zeit.split(',')[2]
+                teilnehmer_Vorname = teilnehmer['Vorname'].to_string(index = False)
+                teilnehmer_Nachname =  teilnehmer['Nachname'].to_string(index = False)
+                teilnehmer_Verein = teilnehmer['Verein'].to_string(index=False)
+                teilnehmer_Altersklasse = teilnehmer['Altersklasse'].to_string(index=False)
+                teilnehmer_Disziplin = teilnehmer['Disziplin'].to_string(index=False)
 
-        }
-    #print(x)
-    #print(cust_1)
-    if x == 10 :
-        #print('hi')
-        Urkunden_dokument.merge_templates([cust_1, cust_2, cust_3, cust_4, cust_5, cust_6, cust_7, cust_8, cust_9, cust_10],separator='page_break')
-    elif x == 9 :
-        Urkunden_dokument.merge_templates([cust_1, cust_2, cust_3, cust_4, cust_5, cust_6, cust_7, cust_8, cust_9],separator='page_break')
-    elif x == 8:
-        Urkunden_dokument.merge_templates([cust_1, cust_2, cust_3, cust_4, cust_5, cust_6, cust_7, cust_8], separator='page_break')
-    elif x == 7:
-        Urkunden_dokument.merge_templates([cust_1, cust_2, cust_3, cust_4, cust_5, cust_6, cust_7],separator='page_break')
-    elif x == 6:
-        Urkunden_dokument.merge_templates([cust_1, cust_2, cust_3, cust_4, cust_5, cust_6],separator='page_break')
-    elif x == 5:
-        Urkunden_dokument.merge_templates([cust_1, cust_2, cust_3, cust_4, cust_5],separator='page_break')
-    elif x == 4:
-        Urkunden_dokument.merge_templates([cust_1, cust_2, cust_3, cust_4 ],separator='page_break')
-    elif x == 3:
-        Urkunden_dokument.merge_templates([cust_1, cust_2, cust_3],separator='page_break')
-    elif x == 2:
-        Urkunden_dokument.merge_templates([cust_1, cust_2],separator='page_break')
-    elif x == 1:
-        Urkunden_dokument.merge_templates([cust_1],separator='page_break')
-   # print(str(y))
-    Urkunden_dokument.write(speicher.zwischenspeicher_file + str(y) + '.docx')
+               # print('vorname ' + teilnehmer['Vorname'])
+                cust_1 = {
+                    'teilnehmer_Vorname': teilnehmer_Vorname,
+                    'teilnehmer_Nachname': teilnehmer_Nachname,
+                    'teilnehmer_Altersklasse': teilnehmer_Altersklasse,
+                    'teilnehmer_Verein': teilnehmer_Verein,
+                    'teilnehmer_Disziplin': teilnehmer_Disziplin,
+                    'teilnehmer_Zeit': teilnehmer_Zeit,
+                }
+                list_teilnehmer_dict.append(cust_1)
+                #if y == 10:
+                #    auswertung.write_to_docx(list_teilnehmer_dict,x)
+                #    list_teilnehmer_dict = []
+                 #   y = 0
+                  #  x = x + 1
+                #y = y+1
+            #if list_teilnehmer_dict:
+            #    auswertung.write_to_docx(list_teilnehmer_dict, x)
+            #auswertung.docx_to_pdf()
+            #auswertung.merge_to_pdf(disziplin)
+               # time.sleep(0.2)
+            auswertung.ak_und_disziplin_zuordnung(self,list_teilnehmer_dict)
+    def ak_und_disziplin_zuordnung(self,teilnehmer_list):
+        disziplinen = get_disziplinen()
+        altersklassen = get_ak()
+        globals()[f"{disziplinen + '_' + altersklassen}"]
+        for teilnehmer in teilnehmer_list:
+
+
+    def merge_to_pdf(self,disziplin):
+        print('merge pdf')
+        check = True
+        x = 1
+        merger = PdfMerger()
+        while  check == True:
+            if os.path.exists(os.path.abspath(".") + '\\temp\\document_' + str(x) + '.pdf'):
+                print(str(x))
+                merger.append(os.path.abspath(".") + '\\temp\\document_' + str(x) + '.pdf')
+                x = x+1
+            else:
+                check = False
+        merger.write(speicher.urkunden_Output_file)
+        merger.close()
+    def docx_to_pdf(self):
+        print('Convert docx to pdf')
+        check = True
+        x = 1
+        while check == True:
+            if os.path.exists(os.path.abspath(".") + '\\temp\\Urkunden_Zusammenfassung' + str(x) + '.docx'):
+                print(str(x))
+                inputFile = os.path.abspath(".") + '\\temp\\Urkunden_Zusammenfassung' + str(x) + '.docx'
+                outputFile = os.path.abspath(".") + '\\temp\\document_' + str(x) + '.pdf'
+                file = open(outputFile, "w")
+                file.close()
+                convert(inputFile, outputFile)
+                print(str(x))
+                x = x+1
+            else:
+                check = False
+    def write_to_docx(self,list_teilnehmer_dict,y):
+        #print(list_teilnehmer_dict)
+        Urkunden_dokument = mailmerge(speicher.urkunde_file)
+        x = 0
+        # erstellt dynamisch bis zu 10 dictionary die jeweils die daten zu einen Teilnehmer erhalten diese werden dann zusammen in eine word datei geschrieben
+        # dies ist effizienter als jeden teilnehmer einzelt in eine word datei zu schreiben
+        #eventuell erweiterung in 10ner schritte zur steigerung der effiziens
+        for i in list_teilnehmer_dict:
+            x =x+1
+            globals()[f"cust_{x}"] = {
+                'teilnehmer_Vorname': i['teilnehmer_Vorname'],
+                'teilnehmer_Nachname': i['teilnehmer_Nachname'],
+                'teilnehmer_Altersklasse': i['teilnehmer_Altersklasse'],
+                'teilnehmer_Verein': i['teilnehmer_Verein'],
+                'teilnehmer_Disziplin': i['teilnehmer_Disziplin'],
+                'teilnehmer_Zeit': i['teilnehmer_Zeit'],
+                'ort': i['ort'],
+                'veranstalter_Vorname': i['veranstalter_Vorname'],
+                'veranstalter_Nachname': i['veranstalter_Nachname']
+
+            }
+        #print(x)
+        #print(cust_1)
+        if x == 10 :
+            #print('hi')
+            Urkunden_dokument.merge_templates([cust_1, cust_2, cust_3, cust_4, cust_5, cust_6, cust_7, cust_8, cust_9, cust_10],separator='page_break')
+        elif x == 9 :
+            Urkunden_dokument.merge_templates([cust_1, cust_2, cust_3, cust_4, cust_5, cust_6, cust_7, cust_8, cust_9],separator='page_break')
+        elif x == 8:
+            Urkunden_dokument.merge_templates([cust_1, cust_2, cust_3, cust_4, cust_5, cust_6, cust_7, cust_8], separator='page_break')
+        elif x == 7:
+            Urkunden_dokument.merge_templates([cust_1, cust_2, cust_3, cust_4, cust_5, cust_6, cust_7],separator='page_break')
+        elif x == 6:
+            Urkunden_dokument.merge_templates([cust_1, cust_2, cust_3, cust_4, cust_5, cust_6],separator='page_break')
+        elif x == 5:
+            Urkunden_dokument.merge_templates([cust_1, cust_2, cust_3, cust_4, cust_5],separator='page_break')
+        elif x == 4:
+            Urkunden_dokument.merge_templates([cust_1, cust_2, cust_3, cust_4 ],separator='page_break')
+        elif x == 3:
+            Urkunden_dokument.merge_templates([cust_1, cust_2, cust_3],separator='page_break')
+        elif x == 2:
+            Urkunden_dokument.merge_templates([cust_1, cust_2],separator='page_break')
+        elif x == 1:
+            Urkunden_dokument.merge_templates([cust_1],separator='page_break')
+       # print(str(y))
+        Urkunden_dokument.write(speicher.zwischenspeicher_file + str(y) + '.docx')
 def new_teilnehmer():
     print('start new Teilnehmer')
     dataframe1 = pd.read_excel(speicher.new_teilnehmer_file, index_col=False) #liest die Daten in ein pandas dataframe ein
-    dataframe2 = pd.read_excel(speicher.teilnehmer_file_excl,index_col = False,)
+    dataframe2 = pd.read_excel(os.path.abspath(".") + '/files/Teilnehmer.xlsx',index_col = False,)
     teilnehmer_vorhanden = False
     # vergleicht alle eingetragenen daten um dopplungen zu vermeiden
     #ist der Teilnehmer noch nicht in der alten liste wird er hinzugefügt
@@ -245,15 +254,37 @@ class stoppuhr:
         ergebnis = teilnehmer_nummer,zeit
         print(ergebnis)
         #speichert teilnehmernummer und die dazugehörige zeit in csv
-        with open(speicher.Zeiten_file, 'a',newline='') as csvfile_old_time:
+        with open( os.path.abspath(".") + '/files/zeiten.csv', 'a',newline='') as csvfile_old_time:
             zeit_save = csv.writer(csvfile_old_time, quoting=csv.QUOTE_ALL)
             zeit_save.writerow(ergebnis)
-
     def start_stoppuhr(self):
         start_time = time.monotonic()
+def reset():
+    print('deleting all user data')
+    try:
+        os.remove(os.path.abspath(".") + '\\files\\zeiten.csv')
+    except:
+        print('kein zeitenfile vorhanden')
+    try:
+        os.remove(os.path.abspath(".") + '\\files\\Teilnehmer.xlsx')
+    except:
+        print('kein Teilnehmerfile vorhanden')
 
+    for f in os.listdir(os.path.abspath(".") + '\\files\\Urkunden_Zusammenfassung'):
+        os.remove(os.path.join(os.path.abspath(".") + '\\files\\Urkunden_Zusammenfassung', f))
+def get_disziplinen():
+    disziplinen_list = []
+    for f in os.listdir(os.path.abspath(".") + '\\files\\Urkunden_Zusammenfassung'):
+        print(f)
+        disziplinen_list.append(f.split('.')[0])
+    print(disziplinen_list)
+    return disziplinen_list
+def get_ak():
+    return ["AK1","Ak2","Ak3","Ak4","Ak5"]
 def main():
     if __name__ == '__main__':
+        speicher
+        loade_config()
         Web_interface.start_Web_interface()
 if __name__ == '__main__':
     main()
