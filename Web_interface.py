@@ -39,7 +39,7 @@ def index():
             pass  # do something
         elif flask.request.form.get('auswertung_start') == 'Auswertung start':
             print('start Auswertung click')
-            main.auswertung(temp_class.disziplin)
+            main.auswertung.auswertung(main.auswertung.auswertung,temp_class.disziplin)
             liste= []
             liste.append('Urkunden_Gesamt.pdf')
             liste.append('hi.pdf')
