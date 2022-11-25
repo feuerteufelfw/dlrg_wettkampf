@@ -9,6 +9,7 @@ import time #fürs zeitstoppen
 import csv
 import sqlite3
 import datetime
+from subprocess import  Popen
 #setup der files
 
 #definiren einiger globaler variablen
@@ -209,10 +210,20 @@ class auswertung():
                     files = []
                     for f in os.listdir(os.path.abspath(".") + '/files/temp/'):
                         files.append(f)
-                    auswertung.docx_to_pdf(self,files)
-                    auswertung.merge_to_pdf()
+                    auswertung.docx_to_pdf(self) #geht nur unter windows
+                    #auswertung.docx_to_pdf_linux(self)#für linux
+                    auswertung.merge_to_pdf(self)
                 else:
                     print('keine daten erhalten')
+    def docx_to_pdf_linux(self):
+        print('start doxc_to_pdf_linux')
+        LIBRE_OFFICE = r"/snap/bin/libreoffice.writer"
+        out_folder = os.path.abspath(".") + '/files/temp/pdf'
+        for input_docx in os.listdir(os.path.abspath(".") + '/files/temp/docx'):
+            p = Popen([LIBRE_OFFICE, '--headless', '--convert-to', 'pdf', '--outdir',
+                       out_folder, input_docx])
+            print([LIBRE_OFFICE, '--convert-to', 'pdf', input_docx])
+            p.communicate()
     def merge_to_pdf(self):
         print('merge pdf')
         check = True
@@ -220,15 +231,15 @@ class auswertung():
         merger = PdfMerger()
         for f in os.listdir(os.path.abspath(".") + '/files/temp/pdf'):
                 merger.append(f)
-
+                os.remove(f)
         merger.write(os.path.abspath(".") + '/files')
         merger.close()
-    def docx_to_pdf(self,files):
+    def docx_to_pdf(self):
         print('Convert docx to pdf')
         check = True
         x = 1
 
-        for f in files:
+        for f in os.listdir(os.path.abspath(".") + '/files/temp/docx'):
             while check:
                 inputFile = f
                 outputFile = os.path.abspath(".") + '/files/temp/pdf/' + str(x) + '.pdf'
@@ -239,6 +250,7 @@ class auswertung():
                     file = open(outputFile, "w")
                     file.close()
                     convert(inputFile, outputFile)
+                    os.remove(inputFile)
                     print(str(x))
                     x = x+1
                     check = False
@@ -300,7 +312,7 @@ class auswertung():
             elif x == 1:
                 Urkunden_dokument.merge_templates([cust_1],separator='page_break')
            # print(str(y))
-            Urkunden_dokument.write(speicher.zwischenspeicher_file + y + '.docx')
+            Urkunden_dokument.write(os.path.abspath(".") + '/files/temp/docx/' + y + '.docx')
         else:
             print('error keine daten erhalten')
 def new_teilnehmer():
