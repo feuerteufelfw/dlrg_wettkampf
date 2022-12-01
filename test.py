@@ -1,13 +1,5 @@
-from subprocess import  Popen
-LIBRE_OFFICE = r"/snap/bin/libreoffice.writer"
+array = [None,2,3,4,5]
+def heap(array1)
 
-def convert_to_pdf(input_docx, out_folder):
-    p = Popen([LIBRE_OFFICE, '--headless', '--convert-to', 'pdf', '--outdir',
-               out_folder, input_docx])
-    print([LIBRE_OFFICE, '--convert-to', 'pdf', input_docx])
-    p.communicate()
+if array[1]> array[2]& array[1]>array[3]
 
-
-sample_doc = '/home/fabian/Schreibtisch/Wettkampfrechner/temp/dokument.docx'
-out_folder = '/home/fabian/Schreibtisch/Wettkampfrechner/temp/'
-convert_to_pdf(sample_doc, out_folder)
