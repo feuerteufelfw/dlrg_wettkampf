@@ -1,5 +1,7 @@
 #import Zeug
 import os
+import pythoncom
+import win32com
 from PyPDF2 import PdfMerger    #zusammenfügen von pdf dateien
 import mailmerge #um auf die Textfelder in word zuzugreifen
 import pandas as pd
@@ -11,7 +13,7 @@ import sqlite3
 import datetime
 from subprocess import  Popen
 
-import urkunde
+import urkunde_old
 
 #setup der files
 
@@ -65,7 +67,7 @@ def loade_config():
     new_zeiten_file = os.path.abspath(".") + '/files/zeiten.csv'
     speicher.new_zeiten_file=new_zeiten_file
 class auswertung():
-    def auswertung(self,disziplin):
+    def auswertung(self):
         print('Auswertung start')
         #auslesen der einzlenen Tielnehmer Daten
         with open(os.path.abspath(".") + '/files/zeiten.csv') as csvdatei:
@@ -99,20 +101,9 @@ class auswertung():
                     'teilnehmer_Nummer': teilnehmer_nummer,
                 }
                 list_teilnehmer_dict.append(cust_1)
-                #if y == 10:
-                #    auswertung.write_to_docx(list_teilnehmer_dict,x)
-                #    list_teilnehmer_dict = []
-                 #   y = 0
-                  #  x = x + 1
-                #y = y+1
-            #if list_teilnehmer_dict:
-            #    auswertung.write_to_docx(list_teilnehmer_dict, x)
-            #auswertung.docx_to_pdf()
-            #auswertung.merge_to_pdf(disziplin)
-               # time.sleep(0.2)
             auswertung.ak_und_disziplin_zuordnung(self,list_teilnehmer_dict)
             auswertung.arry_sort(self)
-            auswertung.export(self)
+            export.export(export)
 
     def ak_und_disziplin_zuordnung(self,teilnehmer_list):
         datenbank = sqlite3.connect("ergebnis.db")
@@ -129,7 +120,6 @@ class auswertung():
                     sql_command = """CREATE TABLE """ + name + """(Teilnehmer_Vorname VARCHAR(50), Teilnehmer_Nachname VARCHAR(25), Disziplin VARCHAR(10), Verein VARCHAR(50), Teilnehmernummer VARCHAR(4), Zeit FLOAT(32),Position VARCHAR(20))"""
                     #print(sql_command)
                     cursor.execute(sql_command)
-        #globals()[f"{disziplinen + '_' + altersklassen}"]
         for teilnehmer in teilnehmer_list:
             #print(teilnehmer)
             teilnehmer_ak = teilnehmer['teilnehmer_Altersklasse']
@@ -198,30 +188,6 @@ class auswertung():
                     l = l + 1
                     datenbank.commit()
         datenbank.close()
-    def export(self):
-        disziplinen = get_disziplinen()
-        alterstklassen = get_ak()
-        datenbank = sqlite3.connect("ergebnis.db")
-        cursor = datenbank.cursor()
-        #for disziplin in disziplinen:
-        #    for ak in alterstklassen:
-        #        tabelle = ak + '_' + disziplin
-        #        cursor.execute("SELECT * FROM " + tabelle)
-         #       teilnehmer_list = cursor.fetchall()
-         #       if len(teilnehmer_list) > 0:
-         ##           #print('zeile 209')
-         #           #print(teilnehmer_list)
-         #           urkunde.write_to_docx(teilnehmer_list,ak)
-          ##          files = []
-          #          for f in os.listdir(os.path.abspath(".") + '/files/temp/'):
-           #             files.append(f)
-                    #urkunde.docx_to_pdf() #geht nur unter windows
-                    #auswertung.docx_to_pdf_linux(self)#für linux
-                    #urkunde.merge_to_pdf()
-         #       else:
-         #           print('keine daten erhalten')
-        time.sleep(5)
-        urkunde.mains()
     def docx_to_pdf_linux(self):
         print('start doxc_to_pdf_linux')
         LIBRE_OFFICE = r"/snap/bin/libreoffice.writer"
@@ -334,6 +300,147 @@ def get_disziplinen():
     return disziplinen_list
 def get_ak():
     return ["AK1","Ak2","Ak3","Ak4","Ak5"]
+class export:
+    def __int__(self):
+        self.temp_pfd_pfad =  os.path.abspath(".") + '/files/temp/pdf/'
+        self.temp_docx_pfad = os.path.abspath(".") + '/files/temp/docx/'
+        self.export_pfad= os.path.abspath(".") + '\\files\\ergebnisse.pdf'
+    def export(self):
+        datenbank = sqlite3.connect("ergebnis.db")
+        cursor = datenbank.cursor()
+        disziplinen = get_disziplinen()
+        ak = get_ak()
+        print(disziplinen)
+        for akl in ak:
+            for disisziplin in disziplinen:
+                tabelle = akl + '_' + disisziplin
+                print(tabelle)
+                cursor.execute("SELECT * FROM " + tabelle)
+                teilnehmer_list = cursor.fetchall()
+                if len(teilnehmer_list) > 0:
+                    # print('zeile 209')
+                    # print(teilnehmer_list)
+                    self.write_to_docx(self,teilnehmer_list, disisziplin, akl)
+        print('schlafe 10 s')
+        time.sleep(10)
+        for f in os.listdir(self.temp_docx_pfad):
+            self.docx_to_pdf(self,self.temp_docx_pfad + f)
+            time.sleep(1)
+        self.merge_pdf()
+
+    def write_to_docx(self,list_teilnehmer, disziplin, ak):
+        print('write do dox: ' + disziplin)
+        print(list_teilnehmer)
+        x = 1
+        y = 1
+        if len(list_teilnehmer) > 0:
+            x = 0
+            # erstellt dynamisch bis zu 10 dictionary die jeweils die daten zu einen Teilnehmer erhalten diese werden dann zusammen in eine word datei geschrieben
+            # dies ist effizienter als jeden teilnehmer einzelt in eine word datei zu schreiben
+            # eventuell erweiterung in 10ner schritte zur steigerung der effiziens
+            datum = get_datum()
+            for i in list_teilnehmer:
+                x = x + 1
+                teilnehmer_time = main.auswertung.decode_time(main.auswertung, i[5]).split(':')[2]
+                teilnehmer_time = str(teilnehmer_time)
+                globals()[f"cust_{x}"] = {
+                    'teilnehmer_Vorname': i[0],
+                    'teilnehmer_Nachname': i[1],
+                    'teilnehmer_ak': ak,
+                    'teilnehmer_Zeit': teilnehmer_time,
+                    'datum': datum,
+                    'teilnehmer_platz': str(i[6])}
+                if x == 10:
+                    urkunden_file = os.path.abspath(".") + '/files/Urkunden_Zusammenfassung/' + list_teilnehmer[0][
+                        2] + '.docx'
+                    with mailmerge.MailMerge(urkunden_file) as Urkunden_dokument:
+                        Urkunden_dokument.merge_templates(
+                            [cust_1, cust_2, cust_3, cust_4, cust_5, cust_6, cust_7, cust_8, cust_9, cust_10],
+                            separator='page_break')
+                        x = 0
+                        while os.path.isfile(os.path.abspath(".") + '/files/temp/docx/dokument' + str(y) + '.docx'):
+                            y = y + 1
+                        Urkunden_dokument.write(os.path.abspath(".") + '/files/temp/docx/dokument' + str(y) + '.docx')
+                        Urkunden_dokument.close()
+            urkunden_file = os.path.abspath(".") + '/files/Urkunden_Zusammenfassung/' + list_teilnehmer[0][2] + '.docx'
+            with mailmerge.MailMerge(urkunden_file) as Urkunden_dokument:
+                print(cust_1)
+                if x == 10:
+                    Urkunden_dokument.merge_templates(
+                        [cust_1, cust_2, cust_3, cust_4, cust_5, cust_6, cust_7, cust_8, cust_9, cust_10],
+                        separator='page_break')
+                elif x == 9:
+                    Urkunden_dokument.merge_templates(
+                        [cust_1, cust_2, cust_3, cust_4, cust_5, cust_6, cust_7, cust_8, cust_9],
+                        separator='page_break')
+                elif x == 8:
+                    Urkunden_dokument.merge_templates([cust_1, cust_2, cust_3, cust_4, cust_5, cust_6, cust_7, cust_8],
+                                                      separator='page_break')
+                elif x == 7:
+                    Urkunden_dokument.merge_templates([cust_1, cust_2, cust_3, cust_4, cust_5, cust_6, cust_7],
+                                                      separator='page_break')
+                elif x == 6:
+                    Urkunden_dokument.merge_templates([cust_1, cust_2, cust_3, cust_4, cust_5, cust_6],
+                                                      separator='page_break')
+                elif x == 5:
+                    Urkunden_dokument.merge_templates([cust_1, cust_2, cust_3, cust_4, cust_5], separator='page_break')
+                elif x == 4:
+                    Urkunden_dokument.merge_templates([cust_1, cust_2, cust_3, cust_4], separator='page_break')
+                elif x == 3:
+                    Urkunden_dokument.merge_templates([cust_1, cust_2, cust_3], separator='page_break')
+                elif x == 2:
+                    Urkunden_dokument.merge_templates([cust_1, cust_2], separator='page_break')
+                elif x == 1:
+                    Urkunden_dokument.merge_templates([cust_1], separator='page_break')
+                Urkunden_dokument.write(os.path.abspath(".") + '/files/temp/docx/dokument' + str(y) + '.docx')
+                print('daten in docx übertragen')
+                Urkunden_dokument.close()
+
+        else:
+            print('error keine daten erhalten')
+        try:
+            Urkunden_dokument.close()
+        except:
+            print('nö')
+
+    def docx_to_pdf(self,inputFile):
+        print('start docx_to_pdf')
+        wdFormatPDF = 17
+        x = 1
+        word = win32com.client.DispatchEx("Word.Application", pythoncom.CoInitialize())
+        word.Visible = True
+        check = True
+        while check:
+            outputFile =self.temp_pfd_pfad+ str(x) + '.pdf'
+            if os.path.isfile(outputFile):
+                check = True
+                x = x + 1
+            else:
+                check = False
+        word.Visible = True
+        doc = word.Documents.Open(inputFile)
+        doc.SaveAs(str(outputFile), FileFormat=wdFormatPDF)
+        doc.Close(0)
+        word.Quit()
+    def merge_pdf(self):
+        print('merge pdf')
+        check = True
+        x = 1
+        merger = PdfMerger()
+        for f in os.listdir(self.temp_pfd_pfad):
+            merger.append(self.temp_pfd_pfad + f)
+            print(f)
+        merger.write(self.export_pfad)
+        merger.close()
+
+    def get_datum(self):
+        print('start get_datum')
+        datum = datetime.date.today()
+        tag = datum.day
+        monat = datum.month
+        jahr = datum.year
+        datum = str(tag) + '.' + str(monat) + '.' + str(jahr)
+        return datum
 def main():
     if __name__ == '__main__':
         speicher

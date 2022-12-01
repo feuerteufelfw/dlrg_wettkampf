@@ -1,5 +1,11 @@
-array = [None,2,3,4,5]
-def heap(array1)
+from datetime import datetime
 
-if array[1]> array[2]& array[1]>array[3]
-
+datum = datetime.today()
+tag = datum.day
+month = datum.month
+year = datum.year
+print('Tag: ' + str(tag))
+print('Monat: ' + str(month))
+print('Jahr: ' + str(year))
+datum = str(tag) + '.' + str(month) + '.' + str(year)
+print(datum)
