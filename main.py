@@ -126,7 +126,7 @@ class auswertung():
                 sql_command ='''SELECT count(name) FROM sqlite_master WHERE type='table' AND name="''' +name+ '''"'''
                 cursor.execute(sql_command)
                 if cursor.fetchone()[0] < 1:
-                    sql_command = """CREATE TABLE """ + name + """(Teilnehmer_Vorname VARCHAR(50), Teilnehmer_Nachname VARCHAR(25), Disziplin VARCHAR(10), Verein VARCHAR(50), Teilnehmernummer VARCHAR(4), Zeit FLOATE(32),Position VARCHAR(20))"""
+                    sql_command = """CREATE TABLE """ + name + """(Teilnehmer_Vorname VARCHAR(50), Teilnehmer_Nachname VARCHAR(25), Disziplin VARCHAR(10), Verein VARCHAR(50), Teilnehmernummer VARCHAR(4), Zeit FLOAT(32),Position VARCHAR(20))"""
                     #print(sql_command)
                     cursor.execute(sql_command)
         #globals()[f"{disziplinen + '_' + altersklassen}"]

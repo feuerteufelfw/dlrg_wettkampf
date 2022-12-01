@@ -26,8 +26,13 @@ def mains():
                 #print('zeile 209')
                 #print(teilnehmer_list)
                 write_to_docx( teilnehmer_list,disisziplin)
+    print('schlafe 10 s')
+    time.sleep(10)
+    for f in os.listdir(os.path.abspath(".") + '/files/temp/docx'):
+        test(os.path.abspath(".") + '/files/temp/docx/' + f)
+        time.sleep(2)
     print('hiiiiiiiiiiiiiiiiiiiiiiiiii')
-    test('C:\\Users\\feuer\\\OneDrive\\\Desktop\\\dlrg_wettkampf\\files\\temp\\docx\\dokumen49.docs')
+    #test('C:\\Users\\feuer\\\OneDrive\\\Desktop\\\dlrg_wettkampf\\files\\temp\\docx\\dokumen49.docs')
       #docx_to_pdf()
     merge_to_pdf()
 
@@ -62,59 +67,60 @@ def write_to_docx(list_teilnehmer,ak):
             if x == 10:
                 urkunden_file = os.path.abspath(".") + '/files/Urkunden_Zusammenfassung/' + list_teilnehmer[0][
                     2] + '.docx'
-                # print(urkunden_file)
-                Urkunden_dokument = mailmerge.MailMerge(urkunden_file)
-                print(cust_2)
-                print('Trage in docx  ein, 10 seiten')
-                Urkunden_dokument.merge_templates([cust_1, cust_2,cust_3,cust_4,cust_5,cust_6,cust_7,cust_8,cust_9,cust_10], separator='page_break')
-                print('daten übertargen')
-                x = 0
-                print('y: ' + str(y))
-                while os.path.isfile(os.path.abspath(".") + '/files/temp/docx/dokument' + str(y) + '.docx'):
-                    y = y + 1
-                    print('y:' + str(y))
-                Urkunden_dokument.write(os.path.abspath(".") + '/files/temp/docx/dokument' + str(y) + '.docx')
+                with mailmerge.MailMerge(urkunden_file) as Urkunden_dokument:
+                    # print(urkunden_file)
+                    Urkunden_dokument = mailmerge.MailMerge(urkunden_file)
+                    print(cust_2)
+                    print('Trage in docx  ein, 10 seiten')
+                    Urkunden_dokument.merge_templates([cust_1, cust_2,cust_3,cust_4,cust_5,cust_6,cust_7,cust_8,cust_9,cust_10], separator='page_break')
+                    print('daten übertargen')
+                    x = 0
+                    print('y: ' + str(y))
+                    while os.path.isfile(os.path.abspath(".") + '/files/temp/docx/dokument' + str(y) + '.docx'):
+                        y = y + 1
+                        print('y:' + str(y))
+                    Urkunden_dokument.write(os.path.abspath(".") + '/files/temp/docx/dokument' + str(y) + '.docx')
 
-                print('daten übertragen')
-                time.sleep(1)
-                Urkunden_dokument.close()
-
+                    print('daten übertragen')
+                    Urkunden_dokument.close()
+                #test(urkunden_file)
         # print(x)
         urkunden_file = os.path.abspath(".") + '/files/Urkunden_Zusammenfassung/' + list_teilnehmer[0][2] + '.docx'
         # print(urkunden_file)
-        Urkunden_dokument = mailmerge.MailMerge(urkunden_file)
-        print(cust_1)
-        if x == 10:
-            # print('hi')
-            Urkunden_dokument.merge_templates(
-                [cust_1, cust_2, cust_3, cust_4, cust_5, cust_6, cust_7, cust_8, cust_9, cust_10],
-                separator='page_break')
-        elif x == 9:
-            Urkunden_dokument.merge_templates([cust_1, cust_2, cust_3, cust_4, cust_5, cust_6, cust_7, cust_8, cust_9],
-                                              separator='page_break')
-        elif x == 8:
-            Urkunden_dokument.merge_templates([cust_1, cust_2, cust_3, cust_4, cust_5, cust_6, cust_7, cust_8],
-                                              separator='page_break')
-        elif x == 7:
-            Urkunden_dokument.merge_templates([cust_1, cust_2, cust_3, cust_4, cust_5, cust_6, cust_7],
-                                              separator='page_break')
-        elif x == 6:
-            Urkunden_dokument.merge_templates([cust_1, cust_2, cust_3, cust_4, cust_5, cust_6], separator='page_break')
-        elif x == 5:
-            Urkunden_dokument.merge_templates([cust_1, cust_2, cust_3, cust_4, cust_5], separator='page_break')
-        elif x == 4:
-            Urkunden_dokument.merge_templates([cust_1, cust_2, cust_3, cust_4], separator='page_break')
-        elif x == 3:
-            Urkunden_dokument.merge_templates([cust_1, cust_2, cust_3], separator='page_break')
-        elif x == 2:
-            Urkunden_dokument.merge_templates([cust_1, cust_2], separator='page_break')
-        elif x == 1:
-            Urkunden_dokument.merge_templates([cust_1], separator='page_break')
-        # print(str(y))
-        Urkunden_dokument.write(os.path.abspath(".") + '/files/temp/docx/dokument' + str(y) + '.docx')
-        print('daten übertragen')
-        Urkunden_dokument.close()
-
+       # Urkunden_dokument = mailmerge.MailMerge(urkunden_file)
+        with mailmerge.MailMerge(urkunden_file) as Urkunden_dokument:
+            print(cust_1)
+            if x == 10:
+                # print('hi')
+                Urkunden_dokument.merge_templates(
+                    [cust_1, cust_2, cust_3, cust_4, cust_5, cust_6, cust_7, cust_8, cust_9, cust_10],
+                    separator='page_break')
+            elif x == 9:
+                Urkunden_dokument.merge_templates([cust_1, cust_2, cust_3, cust_4, cust_5, cust_6, cust_7, cust_8, cust_9],
+                                                  separator='page_break')
+            elif x == 8:
+                Urkunden_dokument.merge_templates([cust_1, cust_2, cust_3, cust_4, cust_5, cust_6, cust_7, cust_8],
+                                                  separator='page_break')
+            elif x == 7:
+                Urkunden_dokument.merge_templates([cust_1, cust_2, cust_3, cust_4, cust_5, cust_6, cust_7],
+                                                  separator='page_break')
+            elif x == 6:
+                Urkunden_dokument.merge_templates([cust_1, cust_2, cust_3, cust_4, cust_5, cust_6], separator='page_break')
+            elif x == 5:
+                Urkunden_dokument.merge_templates([cust_1, cust_2, cust_3, cust_4, cust_5], separator='page_break')
+            elif x == 4:
+                Urkunden_dokument.merge_templates([cust_1, cust_2, cust_3, cust_4], separator='page_break')
+            elif x == 3:
+                Urkunden_dokument.merge_templates([cust_1, cust_2, cust_3], separator='page_break')
+            elif x == 2:
+                Urkunden_dokument.merge_templates([cust_1, cust_2], separator='page_break')
+            elif x == 1:
+                Urkunden_dokument.merge_templates([cust_1], separator='page_break')
+            # print(str(y))
+            Urkunden_dokument.write(os.path.abspath(".") + '/files/temp/docx/dokument' + str(y) + '.docx')
+            print('daten übertragen')
+            Urkunden_dokument.close()
+        #test(urkunden_file)
 
     else:
         print('error keine daten erhalten')
@@ -158,6 +164,7 @@ def merge_to_pdf():
     merger.close()
 def test(inputFile):
     print('start test')
+    print('INput File: ' + inputFile)
     wdFormatPDF = 17
     x = 1
     word = win32com.client.DispatchEx("Word.Application",pythoncom.CoInitialize())
