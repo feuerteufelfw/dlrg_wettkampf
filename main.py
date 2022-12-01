@@ -38,20 +38,19 @@ class speicher:
         self.Zeiten_file =''
         self.teilnehmer_file_excl=''
         self.disziplinen_list = ["2000m","500m","1000m"]
+        self.temp_pfd_pfad = ''
+        self.temp_docx_pfad =''
+        self.export_pfad = ''
+        self.urkunden_file =''
 def loade_config():
-    config_file = os.path.abspath(".") + '\\config.txt'
-    #if config_file :
-    #    with open(config_file) as txt_config_datei:
-    #        config_lines = txt_config_datei.readlines()
-    #        for item in config_lines:
-    #            print(item)
-    #muss noch aus config datei geladen werden
-    #übertrag in speicher class für leichteren zugriff
+    speicher.temp_pdf_pfad = os.path.abspath(".") + '/files/temp/pdf/'
+    speicher.temp_docx_pfad = os.path.abspath(".") + '/files/temp/docx/'
+    speicher.export_pfad = os.path.abspath(".") + '\\files\\ergebnisse.pdf'
+    speicher.urkunden_file =  os.path.abspath(".") + '/files/Urkunden_Zusammenfassung/'
     stoppuhr.ort = 'Blossin'
     stoppuhr.veranstalter_vorname = 'Martin'
     stoppuhr.veranstalter_nachname = 'Krüger'
     #config_file = os.path.abspath(".") + 'files/config.txt'
-    speicher.config_file = config_file
     urkunde_file = os.path.abspath(".") + 'files/Urkunde.docx'
     speicher.urkunde_file = urkunde_file
     Teilnehmer_file_excl = os.path.abspath(".") + '/files/Teilnehmer.xlsx'
@@ -104,6 +103,17 @@ class auswertung():
             auswertung.ak_und_disziplin_zuordnung(self,list_teilnehmer_dict)
             auswertung.arry_sort(self)
             export.export(export)
+    def eintrag_vorhanden(self,teilnehmer,name,cursor):
+        sql_command = '''SELECT * FROM ''' +name +''' WHERE Teilnehmernummer = '''+ teilnehmer['teilnehmer_Nummer']
+        #print(sql_command)
+        cursor.execute(sql_command)
+        temp = cursor.fetchall()
+        #print(111)
+        #print(temp)
+        if len(temp) < 1:
+            return False
+        else:
+            return True
 
     def ak_und_disziplin_zuordnung(self,teilnehmer_list):
         datenbank = sqlite3.connect("ergebnis.db")
@@ -125,27 +135,19 @@ class auswertung():
             teilnehmer_ak = teilnehmer['teilnehmer_Altersklasse']
             teilnehmer_disziplin = teilnehmer['teilnehmer_Disziplin']
             name = teilnehmer_ak + '_' + teilnehmer_disziplin
-            sql_command="""INSERT INTO """ + name + """ VALUES (?,?,?,?,?,?,?)""",(
-                teilnehmer['teilnehmer_Vorname'],
-                teilnehmer['teilnehmer_Nachname'],
-                teilnehmer['teilnehmer_Disziplin'],
-                teilnehmer['teilnehmer_Verein'],
-                teilnehmer['teilnehmer_Nummer'],
-                teilnehmer['teilnehmer_Zeit'],
-                'hi'
+            if auswertung.eintrag_vorhanden(self,teilnehmer,name,cursor) == False:
+                cursor.execute("""INSERT INTO """ + name + """ VALUES (?,?,?,?,?,?,?)""",(
+                    teilnehmer['teilnehmer_Vorname'],
+                    teilnehmer['teilnehmer_Nachname'],
+                    teilnehmer['teilnehmer_Disziplin'],
+                    teilnehmer['teilnehmer_Verein'],
+                    teilnehmer['teilnehmer_Nummer'],
+                    teilnehmer['teilnehmer_Zeit'],
+                    'hi'
 
-            )
-            cursor.execute("""INSERT INTO """ + name + """ VALUES (?,?,?,?,?,?,?)""",(
-                teilnehmer['teilnehmer_Vorname'],
-                teilnehmer['teilnehmer_Nachname'],
-                teilnehmer['teilnehmer_Disziplin'],
-                teilnehmer['teilnehmer_Verein'],
-                teilnehmer['teilnehmer_Nummer'],
-                teilnehmer['teilnehmer_Zeit'],
-                'hi'
-
-            ))
-            datenbank.commit()
+                ))
+                datenbank.commit()
+                print('Neuen Teilnehmer in Datenbank eingefügt ')
             #print(name)
         #time.sleep(1)
         datenbank.commit()
@@ -323,11 +325,12 @@ class export:
                     self.write_to_docx(self,teilnehmer_list, disisziplin, akl)
         print('schlafe 10 s')
         time.sleep(10)
-        for f in os.listdir(self.temp_docx_pfad):
-            self.docx_to_pdf(self,self.temp_docx_pfad + f)
+        for f in os.listdir(os.path.abspath(".") + '/files/temp/docx/'):
+            self.docx_to_pdf(self,os.path.abspath(".") + '/files/temp/docx/' + f)
             time.sleep(1)
-        self.merge_pdf()
-
+        self.merge_pdf(self)
+        time.sleep(2)
+        self.delete_temp_files(self)
     def write_to_docx(self,list_teilnehmer, disziplin, ak):
         print('write do dox: ' + disziplin)
         print(list_teilnehmer)
@@ -338,10 +341,10 @@ class export:
             # erstellt dynamisch bis zu 10 dictionary die jeweils die daten zu einen Teilnehmer erhalten diese werden dann zusammen in eine word datei geschrieben
             # dies ist effizienter als jeden teilnehmer einzelt in eine word datei zu schreiben
             # eventuell erweiterung in 10ner schritte zur steigerung der effiziens
-            datum = get_datum()
+            datum = self.get_datum(self)
             for i in list_teilnehmer:
                 x = x + 1
-                teilnehmer_time = main.auswertung.decode_time(main.auswertung, i[5]).split(':')[2]
+                teilnehmer_time = auswertung.decode_time(auswertung, i[5]).split(':')[2]
                 teilnehmer_time = str(teilnehmer_time)
                 globals()[f"cust_{x}"] = {
                     'teilnehmer_Vorname': i[0],
@@ -351,7 +354,7 @@ class export:
                     'datum': datum,
                     'teilnehmer_platz': str(i[6])}
                 if x == 10:
-                    urkunden_file = os.path.abspath(".") + '/files/Urkunden_Zusammenfassung/' + list_teilnehmer[0][
+                    urkunden_file =  os.path.abspath(".") + '/files/Urkunden_Zusammenfassung/' + list_teilnehmer[0][
                         2] + '.docx'
                     with mailmerge.MailMerge(urkunden_file) as Urkunden_dokument:
                         Urkunden_dokument.merge_templates(
@@ -362,7 +365,7 @@ class export:
                             y = y + 1
                         Urkunden_dokument.write(os.path.abspath(".") + '/files/temp/docx/dokument' + str(y) + '.docx')
                         Urkunden_dokument.close()
-            urkunden_file = os.path.abspath(".") + '/files/Urkunden_Zusammenfassung/' + list_teilnehmer[0][2] + '.docx'
+            urkunden_file =os.path.abspath(".") + '/files/Urkunden_Zusammenfassung/' + list_teilnehmer[0][2] + '.docx'
             with mailmerge.MailMerge(urkunden_file) as Urkunden_dokument:
                 print(cust_1)
                 if x == 10:
@@ -392,6 +395,8 @@ class export:
                     Urkunden_dokument.merge_templates([cust_1, cust_2], separator='page_break')
                 elif x == 1:
                     Urkunden_dokument.merge_templates([cust_1], separator='page_break')
+                while os.path.isfile(os.path.abspath(".") + '/files/temp/docx/dokument' + str(y) + '.docx'):
+                    y = y + 1
                 Urkunden_dokument.write(os.path.abspath(".") + '/files/temp/docx/dokument' + str(y) + '.docx')
                 print('daten in docx übertragen')
                 Urkunden_dokument.close()
@@ -411,7 +416,7 @@ class export:
         word.Visible = True
         check = True
         while check:
-            outputFile =self.temp_pfd_pfad+ str(x) + '.pdf'
+            outputFile =os.path.abspath(".") + '/files/temp/pdf/'+ str(x) + '.pdf'
             if os.path.isfile(outputFile):
                 check = True
                 x = x + 1
@@ -427,10 +432,10 @@ class export:
         check = True
         x = 1
         merger = PdfMerger()
-        for f in os.listdir(self.temp_pfd_pfad):
-            merger.append(self.temp_pfd_pfad + f)
+        for f in os.listdir(os.path.abspath(".") + '/files/temp/pdf/'):
+            merger.append(os.path.abspath(".") + '/files/temp/pdf/' + f)
             print(f)
-        merger.write(self.export_pfad)
+        merger.write(os.path.abspath(".") + '/files/export.pdf')
         merger.close()
 
     def get_datum(self):
@@ -441,10 +446,22 @@ class export:
         jahr = datum.year
         datum = str(tag) + '.' + str(monat) + '.' + str(jahr)
         return datum
+    def delete_temp_files(self):
+        print("start delete_temp_files")
+        counter = 0
+        for file in os.listdir(os.path.abspath(".") + '/files/temp/pdf/'):
+            os.remove(os.path.abspath(".") + '/files/temp/pdf/' + file)
+            counter = counter + 1
+        for file in os.listdir(os.path.abspath(".")+'/files/temp/docx/'):
+            os.remove(os.path.abspath(".")+ '/files/temp/docx/' + file)
+            counter = counter +1
+        print("es wurden " + str(counter) + ' Dateien gelöscht')
 def main():
     if __name__ == '__main__':
         speicher
         loade_config()
+        export
+
         Web_interface.start_Web_interface()
 if __name__ == '__main__':
     main()
