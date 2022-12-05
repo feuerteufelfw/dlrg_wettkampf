@@ -6,10 +6,12 @@ import main
 from flask_dropzone import Dropzone
 import Web_interface
 import time
+from flask_bootstrap import Bootstrap
 #____________________________________________________definition aller verwendeten pfade
 basedir = os.path.abspath(os.path.dirname(__file__))
 UPLOAD_FOLDER = os.path.join(os.getcwd(), 'files')
 app = flask.Flask(__name__,static_folder='static')
+Bootstrap(app)
 time_file = os.path.join(basedir, 'time')
 config_file = os.path.join(basedir, 'config')
 teilnehmer_file = basedir + '/files'
@@ -181,6 +183,6 @@ class speicher:
         self.teilnehmer_list = []
 
 def start_Web_interface():
-    app.run()
+    app.run(host='192.168.0.128')
 temp_class = speicher()
 

@@ -20,20 +20,21 @@
 	</div>		
     <div class="calbottom" style="visibility:{{ visibility }}">
 		 <p>Strecke: {{disziplin}}</p>
+		<input type="submit" value="home" name="home_button"/>
 		<form method="post" action="/zeit_messung">
-			<input type="submit" value="1" name="Zahlen_button"/>
-			<input type="submit" value="2" name="Zahlen_button"/>
-			<input type="submit" value="3" name="Zahlen_button"/>
-			<input type="submit" value="4" name="Zahlen_button"/>
-			<input type="submit" value="5" name="Zahlen_button"/>
-			<input type="submit" value="6" name="Zahlen_button"/>
-			<input type="submit" value="7" name="Zahlen_button"/>
-			<input type="submit" value="8" name="Zahlen_button"/>
-			<input type="submit" value="9" name="Zahlen_button"/>
-			<input type="submit" value="0" name="Zahlen_button"/>
-			<input type="submit" value="back" name="back_button"/>
-			<input type="submit" value="enter" name="enter_button"/>
-			<input type="submit" value="home" name="home_button"/>
+			<input type="submit" value="1" name="Zahlen_button" style="width:33%;  height:10vh"/>
+			<input type="submit" value="2" name="Zahlen_button" style="width:33%; height:10vh"/>
+			<input type="submit" value="3" name="Zahlen_button" style="width:33%; height:10vh"/>
+			<input type="submit" value="4" name="Zahlen_button" style="width:33%; height:10vh"/>
+			<input type="submit" value="5" name="Zahlen_button"style="width:33%; height:10vh"/>
+			<input type="submit" value="6" name="Zahlen_button" style="width:33%; height:10vh"/>
+			<input type="submit" value="7" name="Zahlen_button" style="width:33%; height:10vh"/>
+			<input type="submit" value="8" name="Zahlen_button" style="width:33%; height:10vh"/>
+			<input type="submit" value="9" name="Zahlen_button" style="width:33%; height:10vh"/>
+			<input type="submit" value="back" name="back_button" style="width:33%; height:10vh"/>
+			<input type="submit" value="0" name="Zahlen_button" style="width:33%; height:10vh"/>
+			<input type="submit" value="enter" name="enter_button" style="width:33%; height:10vh"/>
+
 			<br>
 			<p>Teilnehmernummer:  {{prediction_text}}</p>
 
@@ -42,7 +43,7 @@
   </div>
  <div class="finisher"  style="visibility:{{ visibility }}">
 	 <p> Letzte Ergebnisse</p>
-	 <table border = 2 rules = all>
+	 <table border = 2 rules = all style="width:100%; height:10vh">
 		 <tr>
    		<th> Teilnehmer Nummer</th>
    		<th> Teilnehmer Name </th>
