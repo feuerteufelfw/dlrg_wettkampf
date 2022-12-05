@@ -41,9 +41,9 @@ def index():
             pass  # do something
         elif flask.request.form.get('auswertung_start') == 'Auswertung start':
             print('start Auswertung click')
-            main.auswertung.auswertung(main.auswertung.auswertung)
-            liste= main.get_export_files()
-            return flask.render_template('upload.html',files=liste)
+            disziplinen_list = main.get_disziplinen()
+            return flask.render_template('home.html', disziplinen=disziplinen_list)
+
         elif flask.request.form.get('home') == 'home':
             disziplinen_list = main.get_disziplinen()
             return  flask.render_template('home.html',disziplinen=disziplinen_list)
@@ -56,6 +56,9 @@ def index():
             main.export.export(main.export,disziplin)
             liste = main.get_export_files()
             return flask.render_template('upload.html', files=liste)
+        elif flask.request.form.get("downloade_start") == 'downloade files':
+            liste = main.get_export_files()
+            return flask.render_template('upload.html', files =liste)
         else:
             pass  #
     elif flask.request.method == 'GET':
@@ -160,7 +163,7 @@ def zeit_messung():
 @app.route('/download/<path:filename>', methods=['GET'])
 def download(filename):
     print('downloade')
-    return flask.send_from_directory('C:\\Users\\feuer\\OneDrive\\Dokumente\\DLRG\\Wettkampfrechner\\', filename, as_attachment=True)
+    return flask.send_from_directory(os.path.abspath(".") + '/files/export/', filename, as_attachment=True)
 @app.route('/einstellungen',methods=['POST','GET'])
 def einstellungen():
     print('methode einstellungen')
