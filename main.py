@@ -97,7 +97,7 @@ class auswertung():
             auswertung.ak_und_disziplin_zuordnung(self,list_teilnehmer_dict,ak)
             auswertung.arry_sort(self,ak)
             #export.export(export,ak)
-    def eintrag_vorhanden(self,teilnehmer,name,cursor):
+    def eintrag_vorhanden(self,teilnehmer,name,cursor): #checkt ob teilnehmer bereits in db vorhanden
         sql_command = '''SELECT * FROM ''' +name +''' WHERE Teilnehmernummer = '''+ teilnehmer['teilnehmer_Nummer']
         #print(sql_command)
         cursor.execute(sql_command)
@@ -109,7 +109,7 @@ class auswertung():
         else:
             return True
 
-    def ak_und_disziplin_zuordnung(self,teilnehmer_list,ak):
+    def ak_und_disziplin_zuordnung(self,teilnehmer_list,ak): #speichert teilnehmer in db, tabellenname abhänigig von ak und disziplin
         print('start ak und disziplin zuordnung')
         datenbank = sqlite3.connect("ergebnis.db")
         disziplinen = get_disziplinen()
@@ -149,7 +149,7 @@ class auswertung():
         datenbank.commit()
         datenbank.close()
 
-    def arry_sort(self,ak):
+    def arry_sort(self,ak): #sortiert die datenbank um platzierungen zu ermitteln
         datenbank = sqlite3.connect("ergebnis.db")
         disziplinen = get_disziplinen()
         altersklassen = ak
@@ -186,18 +186,9 @@ class auswertung():
                     l = l + 1
                     datenbank.commit()
         datenbank.close()
-    def docx_to_pdf_linux(self):
-        print('start doxc_to_pdf_linux')
-        LIBRE_OFFICE = r"/snap/bin/libreoffice.writer"
-        out_folder = os.path.abspath(".") + '/files/temp/pdf'
-        for input_docx in os.listdir(os.path.abspath(".") + '/files/temp/docx'):
-            p = Popen([LIBRE_OFFICE, '--headless', '--convert-to', 'pdf', '--outdir',
-                       out_folder, input_docx])
-            print([LIBRE_OFFICE, '--convert-to', 'pdf', input_docx])
-            p.communicate()
 
 
-    def decode_time(self,zeit):
+    def decode_time(self,zeit): # gibt zeit im Format Stunden:Minuten:Sekunden zurück
         minuten, seconds = divmod(float(zeit), 60)
         #delta_time = time.monotonic()
         hours, minutes = divmod(minuten, 60)
@@ -229,37 +220,13 @@ def new_teilnehmer():
     dataframe2.to_excel(speicher.teilnehmer_file_excl,index=False)#überträgt alle teilnehmer in den haupt file
     os.remove(speicher.new_teilnehmer_file)#löscht den file in dem die neuen Teilnehmer standen
 
-def new_time():
-    with open(speicher.new_zeiten_file,newline='') as csvfile_new_time:
-        zeite_new = csv.reader(csvfile_new_time,delimiter = ',')
-        neue_zeiten=[]
-        with open (speicher.Zeiten_file,newline='') as csvfile_old_time:
-            zeiten_old =csv.reader(csvfile_old_time)
-            zeit_vorhanden = False
-            for row_old_time in zeiten_old:
-                for row_new_time in zeite_new:
-            # print(row)
-            # print('row1: ' + str(row.get('Teilnehmer Nummer')))
-            # print('row2: ' + str(row2.get('Teilnehmer Nummer')))
-                    if row_new_time == row_old_time:
-                        print('Zeit ist bereits vorhanden')
-                        zeit_vorhanden = True
-                if not zeit_vorhanden:
-                    print('neuen Teilnehmer speichern')
-                    neue_zeiten.append(row_new_time)
-            with open(speicher.Zeiten_file,'a', newline='') as csvfile_old_time:
-                zeit_save = csv.writer(row_new_time)
-                zeit_save.writerows(neue_zeiten)
-            zeit_vorhanden = False;
-        #print(dataframe2)
-       # dataframe2.to_excel(Teilnehmer_file_excl, index=False)
-        os.remove(speicher.new_zeiten_file)
+
 #alles runt um Zeitstoppen
 class stoppuhr:
     def __init__(self,disziplin):
         self.diszilpin = disziplin
         self.start_time = time.monotonic()
-    def new_time(self,teilnehmer_nummer,start_time):
+    def new_time(self,teilnehmer_nummer,start_time): #fügt eine neue Zeit hinzu
         print(teilnehmer_nummer)
        # print('start time: ' + strstart_time)
         delta_time = time.monotonic() - start_time
@@ -277,8 +244,7 @@ class stoppuhr:
         return delta_time
     def start_stoppuhr(self):
         start_time = time.monotonic()
-def reset():
-    print('deleting all user data')
+def reset(): # löscht alles dateien
     try:
         os.remove(os.path.abspath(".") + '/files/zeiten.csv')
     except:
@@ -290,14 +256,14 @@ def reset():
 
     for f in os.listdir(os.path.abspath(".") + '/files/Urkunden_Zusammenfassung'):
         os.remove(os.path.join(os.path.abspath(".") + '/files/Urkunden_Zusammenfassung', f))
-def get_disziplinen():
+def get_disziplinen(): #return list mit allen disziplinen
     disziplinen_list = []
     for f in os.listdir(os.path.abspath(".") + '/files/Urkunden_Zusammenfassung'):
         print(f)
         disziplinen_list.append(f.split('.')[0])
     print(disziplinen_list)
     return disziplinen_list
-def loade_ak():
+def loade_ak():#list alle vorhandenen Altersklassen aus und returnt diese als list
     dataframe1 = pd.read_excel(os.path.join(os.path.abspath(".") + '/files/Teilnehmer.xlsx'), engine='openpyxl', index_col=False)
     df_altersklassen = dataframe1['Altersklasse']
     print(df_altersklassen)
@@ -311,6 +277,7 @@ def loade_ak():
             altersklassen.append(ak)
     return altersklassen
 class export:
+    #in der export classe sind alle methoden die für den export der Daten in pdf und xlsx benötigt werden
     def __int__(self):
         self.temp_pfd_pfad =  os.path.abspath(".") + '/files/temp/pdf/'
         self.temp_docx_pfad = os.path.abspath(".") + '/files/temp/docx/'
@@ -339,7 +306,7 @@ class export:
         time.sleep(2)
         self.delete_temp_files(self)
         self.export_xlsx(self,disziplin)
-    def write_to_docx(self,list_teilnehmer, disziplin, ak):
+    def write_to_docx(self,list_teilnehmer, disziplin, ak):#überträgt daten in textfieldes des docx dokumentes
         print('write do dox: ' + disziplin)
         print(list_teilnehmer)
         x = 1
@@ -416,14 +383,14 @@ class export:
         except:
             print('nö')
 
-    def docx_to_pdf(self,inputFile):
+    def docx_to_pdf(self,inputFile): # convertiert docx datei zu pdf
         print('start docx_to_pdf')
         wdFormatPDF = 17
         x = 1
         word = win32com.client.DispatchEx("Word.Application", pythoncom.CoInitialize())
         word.Visible = True
         check = True
-        while check:
+        while check: #um keine vorhandenen datei zu überschreiben
             outputFile =os.path.abspath(".") + '/files/temp/pdf/'+ str(x) + '.pdf'
             if os.path.isfile(outputFile):
                 check = True
@@ -435,7 +402,7 @@ class export:
         doc.SaveAs(str(outputFile), FileFormat=wdFormatPDF)
         doc.Close(0)
         word.Quit()
-    def merge_pdf(self,disziplin):
+    def merge_pdf(self,disziplin):#fügt alle dateien in /files/temp/pdf/ zu einer pdf zusammen
         print('merge pdf')
         check = True
         x = 1
@@ -445,11 +412,11 @@ class export:
             merger.append(os.path.abspath(".") + '/files/temp/pdf/' + f)
             vorhanden = True
             print(f)
-        if vorhanden:
+        if vorhanden: # falls keine dateien exestieren wird auch keine merge datei erstellt
             merger.write(os.path.abspath(".") + '/files/export/ergebnis_' + disziplin + '.pdf')
         merger.close()
 
-    def get_datum(self):
+    def get_datum(self): #gibt das aktuelle datum zurück
         print('start get_datum')
         datum = datetime.date.today()
         tag = datum.day
@@ -457,7 +424,7 @@ class export:
         jahr = datum.year
         datum = str(tag) + '.' + str(monat) + '.' + str(jahr)
         return datum
-    def delete_temp_files(self):
+    def delete_temp_files(self): #löscht die files in files/temp
         print("start delete_temp_files")
         counter = 0
         for file in os.listdir(os.path.abspath(".") + '/files/temp/pdf/'):
@@ -467,7 +434,7 @@ class export:
             os.remove(os.path.abspath(".")+ '/files/temp/docx/' + file)
             counter = counter +1
         print("es wurden " + str(counter) + ' Dateien gelöscht')
-    def export_xlsx(self,disziplin):
+    def export_xlsx(self,disziplin): # überträgt daten aus sqllite db in xlsx datei
         db = sqlite3.connect("ergebnis.db")
         cursor = db.cursor()
         altersklassen = loade_ak()
@@ -484,9 +451,8 @@ class export:
 
 def get_teilnehmer_infos(teilnehmer_nummer):
     print('start get teilnehmer infos')
-    dataframe1 = pd.read_excel(  os.path.join(os.path.abspath(".") + '/files/Teilnehmer.xlsx'),
-     engine='openpyxl', index_col=False)
-    teilnehmer = dataframe1.loc[dataframe1['Teilnehmer Nummer'] == int(teilnehmer_nummer)]
+    dataframe1 = pd.read_excel(  os.path.join(os.path.abspath(".") + '/files/Teilnehmer.xlsx'), engine='openpyxl', index_col=False) #ruft Teilnehmer.xlsx als dataframe auf
+    teilnehmer = dataframe1.loc[dataframe1['Teilnehmer Nummer'] == int(teilnehmer_nummer)]#sucht den Teilnehmer mit der entsprechenden Teilnehmern nummer raus
     return teilnehmer
 def reset_export():
     print('start reset export')
@@ -495,7 +461,7 @@ def reset_export():
         os.remove(os.path.abspath(".") + "/files/export/" + files)
         x = x + 1
     print('Es wurden ' + str(x) + 'files gelöscht')
-def get_export_files():
+def get_export_files(): #returnt alle files in /files/export/
     files = []
     for file in os.listdir(os.path.abspath(".") + '/files/export/'):
         files.append(file)
