@@ -473,11 +473,11 @@ class export:
             cursor.execute("SELECT * FROM " + tabelle)
             columns = [desc[0] for desc in cursor.description]
             data = cursor.fetchall()
-            df = pd.DataFrame(list(data), columns=columns)
-
-            writer = pd.ExcelWriter( os.path.join(os.path.abspath(".") + '/files/export/export' + tabelle + '.xlsx'))
-            df.to_excel(writer, sheet_name='bar')
-            writer.save()
+            if len(data) > 0:
+                df = pd.DataFrame(list(data), columns=columns)
+                writer = pd.ExcelWriter( os.path.join(os.path.abspath(".") + '/files/export/export' + tabelle + '.xlsx'))
+                df.to_excel(writer, sheet_name='bar')
+                writer.save()
 
 def get_teilnehmer_infos(teilnehmer_nummer):
     print('start get teilnehmer infos')
@@ -496,7 +496,7 @@ def main():
         loade_ak()
         loade_config()
         export
-        #export.export_xlsx(export,"2200m")
+        export.export_xlsx(export,"2200m")
         #Web_interface.start_Web_interface()
 if __name__ == '__main__':
     main()
