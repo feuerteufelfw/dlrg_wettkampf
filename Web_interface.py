@@ -180,6 +180,9 @@ def einstellungen():
         elif flask.request.form.get("reset_button") == 'reset':
             main.reset()
             return  flask.render_template('einstellungen.html',uploade_file_display='block')
+        elif flask.request.form.get("reset_button") == "reset export":
+            main.reset_export()
+            return flask.render_template('einstellungen.html',uploade_file_display='block')
 @app.route('/files',methods=['POST','GET'])
 def files():
     print('files')

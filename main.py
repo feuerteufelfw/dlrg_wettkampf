@@ -330,8 +330,8 @@ class export:
                 # print('zeile 209')
                 # print(teilnehmer_list)
                 self.write_to_docx(self,teilnehmer_list, disziplin, akl)
-        print('schlafe 10 s')
-        time.sleep(10)
+        print('schlafe 5 s')
+        time.sleep(5)
         for f in os.listdir(os.path.abspath(".") + '/files/temp/docx/'):
             self.docx_to_pdf(self,os.path.abspath(".") + '/files/temp/docx/' + f)
             time.sleep(1)
@@ -440,10 +440,13 @@ class export:
         check = True
         x = 1
         merger = PdfMerger()
+        vorhanden = False
         for f in os.listdir(os.path.abspath(".") + '/files/temp/pdf/'):
             merger.append(os.path.abspath(".") + '/files/temp/pdf/' + f)
+            vorhanden = True
             print(f)
-        merger.write(os.path.abspath(".") + '/files/export/ergebnis_' + disziplin + '.pdf')
+        if vorhanden:
+            merger.write(os.path.abspath(".") + '/files/export/ergebnis_' + disziplin + '.pdf')
         merger.close()
 
     def get_datum(self):
@@ -476,7 +479,7 @@ class export:
             if len(data) > 0:
                 df = pd.DataFrame(list(data), columns=columns)
                 writer = pd.ExcelWriter( os.path.join(os.path.abspath(".") + '/files/export/export' + tabelle + '.xlsx'))
-                df.to_excel(writer, sheet_name='bar')
+                df.to_excel(writer, sheet_name=tabelle)
                 writer.save()
 
 def get_teilnehmer_infos(teilnehmer_nummer):
@@ -485,6 +488,13 @@ def get_teilnehmer_infos(teilnehmer_nummer):
      engine='openpyxl', index_col=False)
     teilnehmer = dataframe1.loc[dataframe1['Teilnehmer Nummer'] == int(teilnehmer_nummer)]
     return teilnehmer
+def reset_export():
+    print('start reset export')
+    x = 0
+    for files in os.listdir(os.path.abspath(".") + "/files/export/"):
+        os.remove(os.path.abspath(".") + "/files/export/" + files)
+        x = x + 1
+    print('Es wurden ' + str(x) + 'files gelöscht')
 def get_export_files():
     files = []
     for file in os.listdir(os.path.abspath(".") + '/files/export/'):
@@ -492,11 +502,10 @@ def get_export_files():
     return files
 def main():
     if __name__ == '__main__':
-
         loade_ak()
         loade_config()
         export
-        export.export_xlsx(export,"2200m")
-        #Web_interface.start_Web_interface()
+        #export.export_xlsx(export,"2200m")
+        Web_interface.start_Web_interface()
 if __name__ == '__main__':
     main()
