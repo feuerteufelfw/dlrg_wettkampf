@@ -38,6 +38,8 @@ class speicher:
         self.temp_docx_pfad =''
         self.export_pfad = ''
         self.urkunden_file =''
+        self.ak =[]
+speicher_class = speicher()
 def loade_config():
     speicher.temp_pdf_pfad = os.path.abspath(".") + '/files/temp/pdf/'
     speicher.temp_docx_pfad = os.path.abspath(".") + '/files/temp/docx/'
@@ -58,6 +60,7 @@ def loade_config():
     speicher.new_zeiten_file=new_zeiten_file
 class auswertung():
     def auswertung(self):
+        ak = loade_ak()
         print('Auswertung start')
         #auslesen der einzlenen Tielnehmer Daten
         with open(os.path.abspath(".") + '/files/zeiten.csv') as csvdatei:
@@ -91,9 +94,9 @@ class auswertung():
                     'teilnehmer_Nummer': teilnehmer_nummer,
                 }
                 list_teilnehmer_dict.append(cust_1)
-            auswertung.ak_und_disziplin_zuordnung(self,list_teilnehmer_dict)
-            auswertung.arry_sort(self)
-            export.export(export)
+            auswertung.ak_und_disziplin_zuordnung(self,list_teilnehmer_dict,ak)
+            auswertung.arry_sort(self,ak)
+            export.export(export,ak)
     def eintrag_vorhanden(self,teilnehmer,name,cursor):
         sql_command = '''SELECT * FROM ''' +name +''' WHERE Teilnehmernummer = '''+ teilnehmer['teilnehmer_Nummer']
         #print(sql_command)
@@ -106,11 +109,13 @@ class auswertung():
         else:
             return True
 
-    def ak_und_disziplin_zuordnung(self,teilnehmer_list):
+    def ak_und_disziplin_zuordnung(self,teilnehmer_list,ak):
+        print('start ak und disziplin zuordnung')
         datenbank = sqlite3.connect("ergebnis.db")
         disziplinen = get_disziplinen()
-        altersklassen = get_ak()
+        altersklassen = ak
         cursor = datenbank.cursor()
+        print( altersklassen)
       #  datenbank.set_trace_callback(print)
         for disziplin in disziplinen:
             for ak in altersklassen:
@@ -118,7 +123,7 @@ class auswertung():
                 sql_command ='''SELECT count(name) FROM sqlite_master WHERE type='table' AND name="''' +name+ '''"'''
                 cursor.execute(sql_command)
                 if cursor.fetchone()[0] < 1:
-                    sql_command = """CREATE TABLE """ + name + """(Teilnehmer_Vorname VARCHAR(50), Teilnehmer_Nachname VARCHAR(25), Disziplin VARCHAR(10), Verein VARCHAR(50), Teilnehmernummer VARCHAR(4), Zeit FLOAT(32),Position VARCHAR(20))"""
+                    sql_command = """CREATE TABLE """ + name + """(Teilnehmer_Vorname VARCHAR(50), Teilnehmer_Nachname VARCHAR(25), Disziplin VARCHAR(10), Verein VARCHAR(50), Teilnehmernummer VARCHAR(4), Zeit VARCHAR(32),Position VARCHAR(20))"""
                     #print(sql_command)
                     cursor.execute(sql_command)
         for teilnehmer in teilnehmer_list:
@@ -144,10 +149,10 @@ class auswertung():
         datenbank.commit()
         datenbank.close()
 
-    def arry_sort(self):
+    def arry_sort(self,ak):
         datenbank = sqlite3.connect("ergebnis.db")
         disziplinen = get_disziplinen()
-        altersklassen = get_ak()
+        altersklassen = ak
         # datenbank.set_trace_callback(print)
         cursor = datenbank.cursor()
         for disziplin in disziplinen:
@@ -193,7 +198,7 @@ class auswertung():
 
 
     def decode_time(self,zeit):
-        minuten, seconds = divmod(zeit, 60)
+        minuten, seconds = divmod(float(zeit), 60)
         #delta_time = time.monotonic()
         hours, minutes = divmod(minuten, 60)
         zeit = str(hours) + ':' + str(minutes) + ':' +str(round(seconds))
@@ -292,18 +297,28 @@ def get_disziplinen():
         disziplinen_list.append(f.split('.')[0])
     print(disziplinen_list)
     return disziplinen_list
-def get_ak():
-    return ["AK1","Ak2","Ak3","Ak4","Ak5"]
+def loade_ak():
+    dataframe1 = pd.read_excel(os.path.join(os.path.abspath(".") + '/files/Teilnehmer.xlsx'), engine='openpyxl', index_col=False)
+    df_altersklassen = dataframe1['Altersklasse']
+    print(df_altersklassen)
+    altersklassen = []
+    for ak in df_altersklassen:
+        vorhanden = False
+        for temp in altersklassen:
+            if temp == ak:
+                vorhanden = True
+        if vorhanden == False:
+            altersklassen.append(ak)
+    return altersklassen
 class export:
     def __int__(self):
         self.temp_pfd_pfad =  os.path.abspath(".") + '/files/temp/pdf/'
         self.temp_docx_pfad = os.path.abspath(".") + '/files/temp/docx/'
         self.export_pfad= os.path.abspath(".") + '\\files\\ergebnisse.pdf'
-    def export(self):
+    def export(self,ak):
         datenbank = sqlite3.connect("ergebnis.db")
         cursor = datenbank.cursor()
         disziplinen = get_disziplinen()
-        ak = get_ak()
         print(disziplinen)
         for akl in ak:
             for disisziplin in disziplinen:
@@ -457,8 +472,8 @@ def get_teilnehmer_infos(teilnehmer_nummer):
 
 def main():
     if __name__ == '__main__':
-        speicher_class = speicher()
 
+        loade_ak()
         loade_config()
         export
 
