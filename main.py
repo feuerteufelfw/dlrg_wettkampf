@@ -61,7 +61,7 @@ class auswertung():
         print('Auswertung start')
         #auslesen der einzlenen Tielnehmer Daten
         with open(os.path.abspath(".") + '/files/zeiten.csv') as csvdatei:
-            dataframe1 = pd.read_excel(os.path.abspath(".") + '/files/Teilnehmer.xlsx',index_col = False)
+            dataframe1 = pd.read_excel(os.path.join(os.path.abspath(".") + '/files/Teilnehmer.xlsx'),engine='openpyxl', index_col=False)
             csv_reader_object =csv.reader(csvdatei)
             y = 1
             x = 1
