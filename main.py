@@ -338,6 +338,7 @@ class export:
         self.merge_pdf(self,disziplin)
         time.sleep(2)
         self.delete_temp_files(self)
+        self.export_xlsx(self,disziplin)
     def write_to_docx(self,list_teilnehmer, disziplin, ak):
         print('write do dox: ' + disziplin)
         print(list_teilnehmer)
@@ -463,6 +464,21 @@ class export:
             os.remove(os.path.abspath(".")+ '/files/temp/docx/' + file)
             counter = counter +1
         print("es wurden " + str(counter) + ' Dateien gelöscht')
+    def export_xlsx(self,disziplin):
+        db = sqlite3.connect("ergebnis.db")
+        cursor = db.cursor()
+        altersklassen = loade_ak()
+        for ak in altersklassen:
+            tabelle = ak + '_' + disziplin
+            cursor.execute("SELECT * FROM " + tabelle)
+            columns = [desc[0] for desc in cursor.description]
+            data = cursor.fetchall()
+            df = pd.DataFrame(list(data), columns=columns)
+
+            writer = pd.ExcelWriter( os.path.join(os.path.abspath(".") + '/files/export/export' + tabelle + '.xlsx'))
+            df.to_excel(writer, sheet_name='bar')
+            writer.save()
+
 def get_teilnehmer_infos(teilnehmer_nummer):
     print('start get teilnehmer infos')
     dataframe1 = pd.read_excel(  os.path.join(os.path.abspath(".") + '/files/Teilnehmer.xlsx'),
@@ -480,7 +496,7 @@ def main():
         loade_ak()
         loade_config()
         export
-
-        Web_interface.start_Web_interface()
+        #export.export_xlsx(export,"2200m")
+        #Web_interface.start_Web_interface()
 if __name__ == '__main__':
     main()
