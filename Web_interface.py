@@ -119,10 +119,15 @@ def zeit_messung():
             return flask.render_template('zeit_stoppen.html', prediction_text=str(temp_class.temp_teilnehmer_nummer),visibility_startup="hidden",visibility="visible",disziplin=speicher.disziplin)
         elif flask.request.form.get('enter_button') == 'enter':
             print('enter button push')
-            temp_class.last_teilnehmer_list.append(temp_class.temp_teilnehmer_nummer)
-            main.stoppuhr.new_time(main.stoppuhr,temp_class.temp_teilnehmer_nummer,temp_class.start_time)
+            teilnehmer_zeit = main.stoppuhr.new_time(main.stoppuhr,temp_class.temp_teilnehmer_nummer,temp_class.start_time)
+            teilenhmer_nummer = temp_class.temp_teilnehmer_nummer
+            teilnehmer = main.get_teilnehmer_infos(teilenhmer_nummer)
+            teilnehmer_zeit = main.auswertung.decode_time(main.auswertung,teilnehmer_zeit)
+            teilnehmer_name =  teilnehmer['Vorname'].values[0] + ' ' +  teilnehmer['Nachname'].values[0]
+            teilnehmer = dict( nummer = teilenhmer_nummer,name = teilnehmer_name, zeit = teilnehmer_zeit)
+            temp_class.last_teilnehmer_list.append(teilnehmer)
             temp_class.temp_teilnehmer_nummer = ''
-            return flask.render_template('zeit_stoppen.html', prediction_text=' ',visibility_startup="hidden",visibility="visible",disziplin=speicher.disziplin)
+            return flask.render_template('zeit_stoppen.html', prediction_text=' ',visibility_startup="hidden",visibility="visible",disziplin=speicher.disziplin,teilnehmer_list = temp_class.last_teilnehmer_list)
         elif flask.request.form.get('start_button') == 'start':
             speicher.disziplin = flask.request.form["Disziplin"]
             print(speicher.disziplin)
@@ -136,7 +141,7 @@ def zeit_messung():
         elif flask.request.form.get('Zahlen_button'):
             temp_class.temp_teilnehmer_nummer  = temp_class.temp_teilnehmer_nummer + str(flask.request.form.get('Zahlen_button'))
             print(flask.request.form.get('Zahlen_button'))
-            return flask.render_template('zeit_stoppen.html', prediction_text=str(temp_class.temp_teilnehmer_nummer ),visibility ="visible",visibility_startup='hidden',disziplin=speicher.disziplin)
+            return flask.render_template('zeit_stoppen.html', prediction_text=str(temp_class.temp_teilnehmer_nummer ),visibility ="visible",visibility_startup='hidden',disziplin=speicher.disziplin,teilnehmer_list = temp_class.last_teilnehmer_list)
         elif flask.request.form.get("home_button") == "home":
             return flask.render_template("home.html")
 
@@ -173,6 +178,7 @@ class speicher:
         self.last_teilnehmer_list = []
         self.start_time = ''
         self.disziplin = ''
+        self.teilnehmer_list = []
 
 def start_Web_interface():
     app.run()

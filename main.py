@@ -26,9 +26,6 @@ class speicher:
 
 
     def __init__(self):
-        self.ort = ''
-        self.veranstalter_vorname = ''
-        self.veranstalter_nachname = ''
         self.config_file =''
         self.urkunde_file = ''
         self.new_zeiten_file = ''
@@ -37,7 +34,6 @@ class speicher:
         self.zwischenspeicher_file=''
         self.Zeiten_file =''
         self.teilnehmer_file_excl=''
-        self.disziplinen_list = ["2000m","500m","1000m"]
         self.temp_pfd_pfad = ''
         self.temp_docx_pfad =''
         self.export_pfad = ''
@@ -47,12 +43,7 @@ def loade_config():
     speicher.temp_docx_pfad = os.path.abspath(".") + '/files/temp/docx/'
     speicher.export_pfad = os.path.abspath(".") + '\\files\\ergebnisse.pdf'
     speicher.urkunden_file =  os.path.abspath(".") + '/files/Urkunden_Zusammenfassung/'
-    stoppuhr.ort = 'Blossin'
-    stoppuhr.veranstalter_vorname = 'Martin'
-    stoppuhr.veranstalter_nachname = 'Krüger'
     #config_file = os.path.abspath(".") + 'files/config.txt'
-    urkunde_file = os.path.abspath(".") + 'files/Urkunde.docx'
-    speicher.urkunde_file = urkunde_file
     Teilnehmer_file_excl = os.path.abspath(".") + '/files/Teilnehmer.xlsx'
     speicher.teilnehmer_file_excl = Teilnehmer_file_excl
     Zeiten_file = os.path.abspath(".") + '/files/zeiten.csv'
@@ -278,6 +269,7 @@ class stoppuhr:
         with open( os.path.abspath(".") + '/files/zeiten.csv', 'a',newline='') as csvfile_old_time:
             zeit_save = csv.writer(csvfile_old_time, quoting=csv.QUOTE_ALL)
             zeit_save.writerow(ergebnis)
+        return delta_time
     def start_stoppuhr(self):
         start_time = time.monotonic()
 def reset():
@@ -456,9 +448,17 @@ class export:
             os.remove(os.path.abspath(".")+ '/files/temp/docx/' + file)
             counter = counter +1
         print("es wurden " + str(counter) + ' Dateien gelöscht')
+def get_teilnehmer_infos(teilnehmer_nummer):
+    print('start get teilnehmer infos')
+    dataframe1 = pd.read_excel(  os.path.join(os.path.abspath(".") + '/files/Teilnehmer.xlsx'),
+     engine='openpyxl', index_col=False)
+    teilnehmer = dataframe1.loc[dataframe1['Teilnehmer Nummer'] == int(teilnehmer_nummer)]
+    return teilnehmer
+
 def main():
     if __name__ == '__main__':
-        speicher
+        speicher_class = speicher()
+
         loade_config()
         export
 

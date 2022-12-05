@@ -40,6 +40,22 @@
 	</form>
 
   </div>
-  
+ <div class="finisher"  style="visibility:{{ visibility }}">
+	 <p> Letzte Ergebnisse</p>
+	 <table border = 2 rules = all>
+		 <tr>
+   		<th> Teilnehmer Nummer</th>
+   		<th> Teilnehmer Name </th>
+   		<th> Teilnehmer Zeit </th>
+
+	 </tr>
+	 {% for teilnehmer in teilnehmer_list %}
+	 <TR>
+   		<td> {{teilnehmer.nummer}}</td>
+   		<td> {{teilnehmer.name}}</td>
+   		<td> {{teilnehmer.zeit}}</td>
+	 {% endfor %}
+	 </TR>
+	 </table>
 </body>
 </html>
