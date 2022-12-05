@@ -96,7 +96,7 @@ class auswertung():
                 list_teilnehmer_dict.append(cust_1)
             auswertung.ak_und_disziplin_zuordnung(self,list_teilnehmer_dict,ak)
             auswertung.arry_sort(self,ak)
-            export.export(export,ak)
+            #export.export(export,ak)
     def eintrag_vorhanden(self,teilnehmer,name,cursor):
         sql_command = '''SELECT * FROM ''' +name +''' WHERE Teilnehmernummer = '''+ teilnehmer['teilnehmer_Nummer']
         #print(sql_command)
@@ -315,27 +315,27 @@ class export:
         self.temp_pfd_pfad =  os.path.abspath(".") + '/files/temp/pdf/'
         self.temp_docx_pfad = os.path.abspath(".") + '/files/temp/docx/'
         self.export_pfad= os.path.abspath(".") + '\\files\\ergebnisse.pdf'
-    def export(self,ak):
+    def export(self,disziplin ):
+        ak = loade_ak()
         datenbank = sqlite3.connect("ergebnis.db")
         cursor = datenbank.cursor()
         disziplinen = get_disziplinen()
         print(disziplinen)
         for akl in ak:
-            for disisziplin in disziplinen:
-                tabelle = akl + '_' + disisziplin
-                print(tabelle)
-                cursor.execute("SELECT * FROM " + tabelle)
-                teilnehmer_list = cursor.fetchall()
-                if len(teilnehmer_list) > 0:
-                    # print('zeile 209')
-                    # print(teilnehmer_list)
-                    self.write_to_docx(self,teilnehmer_list, disisziplin, akl)
+            tabelle = akl + '_' + disziplin
+            print(tabelle)
+            cursor.execute("SELECT * FROM " + tabelle)
+            teilnehmer_list = cursor.fetchall()
+            if len(teilnehmer_list) > 0:
+                # print('zeile 209')
+                # print(teilnehmer_list)
+                self.write_to_docx(self,teilnehmer_list, disziplin, akl)
         print('schlafe 10 s')
         time.sleep(10)
         for f in os.listdir(os.path.abspath(".") + '/files/temp/docx/'):
             self.docx_to_pdf(self,os.path.abspath(".") + '/files/temp/docx/' + f)
             time.sleep(1)
-        self.merge_pdf(self)
+        self.merge_pdf(self,disziplin)
         time.sleep(2)
         self.delete_temp_files(self)
     def write_to_docx(self,list_teilnehmer, disziplin, ak):
@@ -434,7 +434,7 @@ class export:
         doc.SaveAs(str(outputFile), FileFormat=wdFormatPDF)
         doc.Close(0)
         word.Quit()
-    def merge_pdf(self):
+    def merge_pdf(self,disziplin):
         print('merge pdf')
         check = True
         x = 1
@@ -442,7 +442,7 @@ class export:
         for f in os.listdir(os.path.abspath(".") + '/files/temp/pdf/'):
             merger.append(os.path.abspath(".") + '/files/temp/pdf/' + f)
             print(f)
-        merger.write(os.path.abspath(".") + '/files/export.pdf')
+        merger.write(os.path.abspath(".") + '/files/export/ergebnis_' + disziplin + '.pdf')
         merger.close()
 
     def get_datum(self):
@@ -469,7 +469,11 @@ def get_teilnehmer_infos(teilnehmer_nummer):
      engine='openpyxl', index_col=False)
     teilnehmer = dataframe1.loc[dataframe1['Teilnehmer Nummer'] == int(teilnehmer_nummer)]
     return teilnehmer
-
+def get_export_files():
+    files = []
+    for file in os.listdir(os.path.abspath(".") + '/files/export/'):
+        files.append(file)
+    return files
 def main():
     if __name__ == '__main__':
 

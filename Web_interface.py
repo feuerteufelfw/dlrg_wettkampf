@@ -42,20 +42,25 @@ def index():
         elif flask.request.form.get('auswertung_start') == 'Auswertung start':
             print('start Auswertung click')
             main.auswertung.auswertung(main.auswertung.auswertung)
-            liste= []
-            liste.append('Urkunden_Gesamt.pdf')
-            liste.append('hi.pdf')
+            liste= main.get_export_files()
             return flask.render_template('upload.html',files=liste)
         elif flask.request.form.get('home') == 'home':
-            return  flask.render_template('home.html')
+            disziplinen_list = main.get_disziplinen()
+            return  flask.render_template('home.html',disziplinen=disziplinen_list)
         elif flask.request.form.get('zeitmessung_start') == 'zeitmessung start':
             disziplinen_list = main.get_disziplinen()
             return flask.render_template('zeit_stoppen.html',visibility="hidden",visibility_startup="visible",disziplinen=disziplinen_list)
             print('config uploade')
+        elif flask.request.form.get('export') =='export':
+            disziplin = flask.request.form["Disziplin"]
+            main.export.export(main.export,disziplin)
+            liste = main.get_export_files()
+            return flask.render_template('upload.html', files=liste)
         else:
             pass  #
     elif flask.request.method == 'GET':
-        return flask.render_template('home.html')
+        disziplinen_list = main.get_disziplinen()
+        return flask.render_template('home.html',disziplinen=disziplinen_list)
 #_____________________________________________________________uploade Time
 @app.route('/upload_time',methods=[ 'POST','GET'])
 def upload_time():
@@ -81,10 +86,13 @@ def upload_time():
                     else:
                         vorhanden = False
             f.save(file_path)
-            return flask.render_template("home.html")
+            disziplinen_list = main.get_disziplinen()
+            return flask.render_template("home.html",disziplinen=disziplinen_list)
         if flask.request.form.get('home') == 'home':
-            return flask.render_template('home.html')
-    return flask.render_template("home.html")
+            disziplinen_list = main.get_disziplinen()
+            return flask.render_template('home.html',disziplinen=disziplinen_list)
+    disziplinen_list = main.get_disziplinen()
+    return flask.render_template("home.html",disziplinen=disziplinen_list)
 @app.route('/uploade_urkunde',methods=[ 'POST','GET'])
 def uploade_urkunde():
     print('uploade urkunde')
@@ -109,7 +117,8 @@ def upload_teilnehmer():
             #main.new_teilnehmer()
             return flask.render_template("einstellungen.html")
         if flask.request.form.get('home') == 'home':
-            return flask.render_template('home.html')
+            disziplinen_list = main.get_disziplinen()
+            return flask.render_template('home.html',disziplinen=disziplinen_list)
         return flask.render_template("einstellungen.html")
 @app.route('/zeit_messung',methods=[ 'POST','GET'])
 def zeit_messung():
@@ -145,7 +154,8 @@ def zeit_messung():
             print(flask.request.form.get('Zahlen_button'))
             return flask.render_template('zeit_stoppen.html', prediction_text=str(temp_class.temp_teilnehmer_nummer ),visibility ="visible",visibility_startup='hidden',disziplin=speicher.disziplin,teilnehmer_list = temp_class.last_teilnehmer_list)
         elif flask.request.form.get("home_button") == "home":
-            return flask.render_template("home.html")
+            disziplinen_list = main.get_disziplinen()
+            return flask.render_template("home.html",disziplinen=disziplinen_list)
 
 @app.route('/download/<path:filename>', methods=['GET'])
 def download(filename):
@@ -162,7 +172,8 @@ def einstellungen():
             return flask.render_template('einstellungen.html',uploade_file_display='block')
         elif flask.request.form.get('home')=='home':
             print('home website aufgerufen')
-            return flask.render_template('home.html')
+            disziplinen_list = main.get_disziplinen()
+            return flask.render_template('home.html',disziplinen=disziplinen_list)
         elif flask.request.form.get("reset_button") == 'reset':
             main.reset()
             return  flask.render_template('einstellungen.html',uploade_file_display='block')
