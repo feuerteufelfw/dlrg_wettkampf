@@ -253,9 +253,31 @@ def reset(): # löscht alles dateien
         os.remove(os.path.abspath(".") + '/files/Teilnehmer.xlsx')
     except:
         print('kein Teilnehmerfile vorhanden')
+    try:
+        os.remove(os.path.abspath(".")+"/ergebnis.db")
+    except:
+        print('keine ergebins Datenbank vorhanden')
+    reset_export()
+    reset_temp()
+    if os.path.exists(os.path.abspath('.')+'/Teilnehmer.xlsx'):
+        os.remove(os.path.abspath('.')+'Teilnehmer.xlsx')
+    if os.path.exists(os.path.abspath('.')+'/zeiten.csv'):
+        os.remove(os.path.abspath('.')+'/zeiten.csv')
 
-    for f in os.listdir(os.path.abspath(".") + '/files/Urkunden_Zusammenfassung'):
-        os.remove(os.path.join(os.path.abspath(".") + '/files/Urkunden_Zusammenfassung', f))
+def reset_Urkuden():
+    print('start reset urkunden')
+    x = 0
+    for files in os.listdir(os.path.abspath(".") + "/files/Urkunden_Zusammenfassung/"):
+        os.remove(os.path.abspath(".") + "/files/Urkunden_Zusammenfassung/" + files)
+        x = x + 1
+    print('Es wurden ' + str(x) + 'files gelöscht')
+def reset_temp():
+    print('start reset temp')
+    x = 0
+    for files in os.listdir(os.path.abspath(".") + "/files/temp/"):
+        os.remove(os.path.abspath(".") + "/files/temp/" + files)
+        x = x + 1
+    print('Es wurden ' + str(x) + 'files gelöscht')
 def get_disziplinen(): #return list mit allen disziplinen
     disziplinen_list = []
     for f in os.listdir(os.path.abspath(".") + '/files/Urkunden_Zusammenfassung'):
@@ -264,6 +286,7 @@ def get_disziplinen(): #return list mit allen disziplinen
     print(disziplinen_list)
     return disziplinen_list
 def loade_ak():#list alle vorhandenen Altersklassen aus und returnt diese als list
+
     dataframe1 = pd.read_excel(os.path.join(os.path.abspath(".") + '/files/Teilnehmer.xlsx'), engine='openpyxl', index_col=False)
     df_altersklassen = dataframe1['Altersklasse']
     print(df_altersklassen)

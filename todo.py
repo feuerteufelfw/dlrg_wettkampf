@@ -1,4 +1,4 @@
-zeiten stoppen home button
+#zeiten stoppen home button
 zeiten stoppen Zeit anzeigen (extra website)
 speicher kein zeiten file
 zuletzt angekommende schwimmer anzeigen

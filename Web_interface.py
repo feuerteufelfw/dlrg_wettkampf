@@ -1,5 +1,6 @@
 #import gedöns
 import os
+import threading
 from pathlib import Path
 import flask
 import main
@@ -42,6 +43,7 @@ def index():
         elif flask.request.form.get('auswertung_start') == 'Auswertung start':
             print('start Auswertung click')
             disziplinen_list = main.get_disziplinen()
+            main.auswertung.auswertung(main.auswertung)
             return flask.render_template('home.html', disziplinen=disziplinen_list)
 
         elif flask.request.form.get('home') == 'home':
@@ -199,7 +201,9 @@ class speicher:
         self.disziplin = ''
         self.teilnehmer_list = []
 
+uhr = flask.Flask(__name__, static_folder='static')
+
 def start_Web_interface():
-    app.run(host='192.168.0.128')
+    app.run(host='DESKTOP-91HA56Q', port='5000')
 temp_class = speicher()
 
