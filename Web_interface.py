@@ -193,9 +193,6 @@ def einstellungen():
         elif flask.request.form.get("reset_button") == 'reset':
             main.reset()
             return  flask.render_template('einstellungen.html',uploade_file_display='block')
-        elif flask.request.form.get("reset_button") == "reset export":
-            main.reset_export()
-            return flask.render_template('einstellungen.html',uploade_file_display='block')
         elif flask.request.form.get('uploade_urkunde_bt'):
             print("uploade urkunde")
             neue_urkunde = flask.request.files['urkunde']
@@ -204,6 +201,13 @@ def einstellungen():
             urkunden = main.get_urkunden_files()
             print(urkunden)
             return flask.render_template('einstellungen.html', display_urkunde="True", display_teilnehmer="none",urkunden=urkunden)
+        elif flask.request.form.get('teilnehmer_bt'):
+            print("teilnehmer bt klick")
+            return flask.render_template('einstellungen.html', display_urkunde ="none", display_teilnehmer="True", display_teilnehmer_list = "none")
+        elif flask.request.form.get("show_teilnehmer_bt"):#
+            print("teilnehmer list bt klick")
+            teilnehmer_list = main.get_teilnehmer_list()
+            return flask.render_template('einstellungen.html', display_urkunde="none",display_teilnehmer="True",diplay_teilnehmer_list = "True",Teilnehmer_array = teilnehmer_list)
 
 @app.route('/new_tn', methods=['POST','GET'])
 def new_tn():

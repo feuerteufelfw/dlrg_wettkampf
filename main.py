@@ -514,6 +514,23 @@ def test():
     tn_info = get_teilnehmer_infos(tn_anzahl)
     if tn_info.empty:
         print('empty')
+def get_teilnehmer_list():
+    teilnehmer_list = []
+    dataframe1 = pd.read_csv('files/teilnehmer.csv', index_col=False)  # liest die Daten in ein pandas dataframe ein
+    print(dataframe1)
+    for i,row in dataframe1.iterrows():
+        print(row)
+        print(i)
+        tn_number = row.get('Teilnehmer Nummer')
+        tn_vorname = row.get('Vorname')
+        tn_nachname = row.get('Nachname')
+        tn_Verein = row.get('Verein')
+        tn_ak = row.get("Altersklasse")
+        tn_disziplin = row.get('Disziplin')
+        teilnehmer = [tn_number, tn_vorname, tn_nachname, tn_Verein, tn_ak, tn_disziplin]
+        teilnehmer_list.append(teilnehmer)
+    print(teilnehmer_list)
+    return teilnehmer_list
 def main():
     if __name__ == '__main__':
         #loade_ak()

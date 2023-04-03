@@ -14,7 +14,7 @@
 	    <input type="submit" value="Urkunden" name="urkunden_bt" style="width:25%;  height:10vh"/>
         <br/>
         {{visibility_urkunde}}
-        <div class = "urkunde" style = "display:{{display_urkunde}}" >
+        <div class = "urkunde" style = "display:{{display_urkunde}}"  >
           <form method="post" action="/downloade_urkunden">
              <h1>Hochgeladene Urkunden: </h1>
 			 	{% for file in urkunden %}
@@ -23,52 +23,56 @@
 				{% endfor %}
 			</form>
             <form action = "/einstellungen" method = "post" enctype="multipart/form-data">
-            <label for ="urkunde"> neue Urkunde: </label>
-            <input type = "file" name ="urkunde" id = "urkunde"/>
-            <label for = "disziplin_urkunde">Disziplin: </label>
-            <input type = "text" name="disziplin_urkunde" id = "disziplin_urkunde"/>
-            <input type = "submit" name = "uploade_urkunde_bt" value = "uploade"/>
+                <label for ="urkunde"> neue Urkunde: </label>
+                <input type = "file" name ="urkunde" id = "urkunde"/>
+                <label for = "disziplin_urkunde">Disziplin: </label>
+                <input type = "text" name="disziplin_urkunde" id = "disziplin_urkunde"/>
+                <input type = "submit" name = "uploade_urkunde_bt" value = "uploade"/>
+            </form>
             <br/>
         </div>
-        <input type="submit" value="Teilnehmer" name="teilnehmer_bt" style="width:25%;  height:10vh"/>
-        <br/>
-          <div class = "Teilnehmer" style = "visibility:{{display_teilnehmer}}">
-              <a>hi</a>
-          </div>
+        <form method="post" action="/einstellungen" >
+            <input type="submit" value="Teilnehmer" name="teilnehmer_bt" style="width:25%;  height:10vh"/>
+            <br/>
+              <div class = "Teilnehmer" style = "display:{{display_teilnehmer}}" action = "/einstellungen">
+                  <form action = "/einstellungen" method = "post" enctype="multipart/form-data">
+                      <label for ="teilnehmer_file"> Teilnehmer Liste hinzufügen: </label>
+                      <input type = "file" name ="teilnehmer_file" id = "teilnehmer_file"/>
+                      <input type = "submit" name = "uploade_urkunde_bt" value = "uploade"/>
+                      <br/>
+                  </form>
+                  <input type="submit" name="show_teilnehmer_bt" value = "Teilnehmer anzeigen"/>
+                  <br/>
+                  <div class = "Teilnehmer_list" style = "display:{{display_teilnehmer_list}}">
+                      <table rules = all border = [10px]>
+                          <tr>
+                              <th>Teilnehmer Nummer</th>
+                              <th>Vorname</th>
+                              <th>Nachname</th>
+                              <th>Verein</th>
+                              <th>Altersklasse</th>
+                              <th>Disziplin</th>
+                          </tr>
+                         {% for teilnehmer in Teilnehmer_array %}
+                          <tr>
+                              {% for spalte in teilnehmer %}
+                              <td>{{spalte}}</td>
+                              {% endfor %}
+                          </tr>
+                          {% endfor %}
+                      </table>
+                  </div>
+              </div>
+        </form>
         <input type="submit" value="Zurücksetzen" name="reset_bt" style="width:24%;  height:10vh"/>
         <br/>
         <label for="datum_textfield" >Datum: </label>
         <input type = "text" id = "datum_textfield" name = "datum_textfield" />
         <input type = "submit" value="enter" name ="neue_datum_bt"/>
     </form>
-    <form method="POST" action="/uploade_urkunde" >
-        <p> Urkunde </p>
-  </form>
 
-     <p> Neue Teilnehmer: </p>
-   <neue_teilnehmer class ='neue_teilnehmer' method="post" action="/upload_teilnehmer" >
-    {{ dropzone.create(action='upload_teilnehmer') }}
-    {{ dropzone.load_js() }}
-    {{ dropzone.config() }}
-    {{ dropzone.style('
-        max-width: 1576px;
-        height: 72px;
-        padding: 24px;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        font-family: "Roboto", sans-serif;
-        font-weight: 400;
-        font-size: 12px;
-        cursor: pointer;
-        color: #cccccc;
-        border: dashed;
-        border-radius: 4px;
-    ')}}
-    {# You can get the success response from server like this: #}
-    {#{ dropzone.config(custom_options="success: function(file, response){console.log(response);}") }#}
-   </neue_teilnehmer>
+
+
 
 
 </body>
