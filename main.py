@@ -195,14 +195,12 @@ class auswertung():
         zeit = str(hours) + ':' + str(minutes) + ':' +str(round(seconds))
         return zeit
 
-def new_teilnehmer_file():
+def new_teilnehmer_file():#file mit neuen Teilnehmern wird hinzugefügt
     print('start new Teilnehmer')
     dataframe1 = pd.read_excel('files/Teilnehmer.xlsx', index_col=False) #liest die Daten in ein pandas dataframe ein
-    dataframe2 = pd.read_csv(os.path.abspath(".") + '/files/teilnehmer.csv',index_col = False,)
     teilnehmer_vorhanden = False
-    # vergleicht alle eingetragenen daten um dopplungen zu vermeiden
-    #ist der Teilnehmer noch nicht in der alten liste wird er hinzugefügt
-    for i, row in dataframe1.iterrows():
+    for i, row in dataframe1.iterrows():#geht alle zeilen des neuen file durch,
+        # wenn teilnehmer noch nicht in der csv Datei sind werden sie dort hinzugefügt
         tn_number = row.get('Teilnehmer Nummer')
         print(tn_number)
         print(get_teilnehmer_infos(tn_number))
@@ -220,15 +218,15 @@ def new_teilnehmer_file():
                 csv_datei.close()
     #dataframe2.to_excel(speicher.teilnehmer_file_excl,index=False)#überträgt alle teilnehmer in den haupt file
     #os.remove(speicher.new_teilnehmer_file)#löscht den file in dem die neuen Teilnehmer standen
-def new_tn(tn_vorname,tn_nachname,tn_ak,tn_disziplin,verein):
+def new_tn(tn_vorname,tn_nachname,tn_ak,tn_disziplin,verein):#ein neuer Teilnehmer wird der tn liste hinzugefügt
     dataframe1 = pd.read_csv(  os.path.join(os.path.abspath(".") + '/files/Teilnehmer.csv'),sep = ',',index_col=False)
     tn_anzahl = len(dataframe1)
     tn_anzahl = tn_anzahl + 1
     tn_info = get_teilnehmer_infos(tn_anzahl)
-    while tn_info.empty == False:
+    while tn_info.empty == False: # wenn zu der geplanten tn nummer daten gefunden wurden wird diese um 1 erhöht
         tn_anzahl = tn_anzahl + 1
         tn_info = get_teilnehmer_infos(tn_anzahl)
-    with open(os.path.abspath(".") + '/files/teilnehmer.csv', 'a') as csv_datei:
+    with open(os.path.abspath(".") + '/files/teilnehmer.csv', 'a') as csv_datei: # fügt neuen teilnehmer in csv datei hinzu
         writer = csv.writer(csv_datei)
         list = [tn_anzahl, tn_vorname,tn_nachname,verein,tn_ak,tn_disziplin]
         print(list)
@@ -517,8 +515,8 @@ def main():
         loade_config()
         #export
         #export.export_xlsx(export,"2200m")
-        new_teilnehmer_file()
+        #new_teilnehmer_file()
         #test()
-        #Web_interface.start_Web_interface()
+        Web_interface.start_Web_interface()
 if __name__ == '__main__':
     main()
