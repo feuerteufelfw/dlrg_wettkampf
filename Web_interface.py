@@ -17,6 +17,8 @@ time_file = os.path.join(basedir, 'time')
 config_file = os.path.join(basedir, 'config')
 teilnehmer_file = basedir + '/files'
 urkunden_file = basedir  + "/files/Urkunden_Zusammenfassung"
+visibility_urkunden = "hidden"
+visibility_teilnehmer = "hidden"
 print(basedir)
 print(urkunden_file)
 #________________________________________________________________________________________
@@ -38,17 +40,16 @@ def index():
     if flask.request.method == 'POST':
         if flask.request.form.get('einstellungen_button') == 'Einstellungen':
             print('einstellungen Klick')
-            return flask.render_template('einstellungen.html')
+            return flask.render_template('einstellungen.html', display_teilnehmer = "none", display_urkunde ="none")
             pass  # do something
         elif flask.request.form.get('auswertung_start') == 'Auswertung start':
             print('start Auswertung click')
-            disziplinen_list = main.get_disziplinen()
             main.auswertung.auswertung(main.auswertung)
-            return flask.render_template('home.html', disziplinen=disziplinen_list)
+            return flask.render_template('home.html')
 
         elif flask.request.form.get('home') == 'home':
             disziplinen_list = main.get_disziplinen()
-            return  flask.render_template('home.html',disziplinen=disziplinen_list)
+            return  flask.render_template('home.html')
         elif flask.request.form.get('zeitmessung_start') == 'zeitmessung start':
             disziplinen_list = main.get_disziplinen()
             return flask.render_template('zeit_stoppen.html',visibility="hidden",visibility_startup="visible",disziplinen=disziplinen_list)
@@ -67,7 +68,7 @@ def index():
             pass  #
     elif flask.request.method == 'GET':
         disziplinen_list = main.get_disziplinen()
-        return flask.render_template('home.html',disziplinen=disziplinen_list)
+        return flask.render_template('home.html')
 #_____________________________________________________________uploade Time
 @app.route('/upload_time',methods=[ 'POST','GET'])
 def upload_time():
@@ -168,15 +169,23 @@ def zeit_messung():
 def download(filename):
     print('downloade')
     return flask.send_from_directory(os.path.abspath(".") + '/files/export/', filename, as_attachment=True)
+@app.route('/downloade_urkunden/<path:filename>', methods=['GET'])#sendet urkunde an client
+def downloade(filename):
+    print('downloade')
+    return flask.send_from_directory(os.path.abspath(".") + '/files/Urkunden_Zusammenfassung/', filename, as_attachment=True)
+
 @app.route('/einstellungen',methods=['POST','GET'])
 def einstellungen():
+
     print('methode einstellungen')
     if flask.request.method == 'POST':
-        if flask.request.form.get('neues_datum') == 'neues Datum':
+        if flask.request.form.get('neues_datum_bt') == 'enter':
             datum = flask.request.form('datum_textfield')
             print("Datum: " + datum)
-        elif flask.request.form.get('uploade_button'):
-            return flask.render_template('einstellungen.html',uploade_file_display='block')
+        elif flask.request.form.get('urkunden_bt'):
+            urkunden = main.get_urkunden_files()
+            print(urkunden)
+            return flask.render_template('einstellungen.html',display_urkunde="True",display_teilnehmer="none",urkunden=urkunden)
         elif flask.request.form.get('home')=='home':
             print('home website aufgerufen')
             disziplinen_list = main.get_disziplinen()
@@ -187,6 +196,15 @@ def einstellungen():
         elif flask.request.form.get("reset_button") == "reset export":
             main.reset_export()
             return flask.render_template('einstellungen.html',uploade_file_display='block')
+        elif flask.request.form.get('uploade_urkunde_bt'):
+            print("uploade urkunde")
+            neue_urkunde = flask.request.files['urkunde']
+            disziplin = flask.request.form["disziplin_urkunde"]
+            neue_urkunde.save( os.path.join(os.path.abspath(".") + "/files/Urkunden_Zusammenfassung/" + disziplin + ".docx"))
+            urkunden = main.get_urkunden_files()
+            print(urkunden)
+            return flask.render_template('einstellungen.html', display_urkunde="True", display_teilnehmer="none",urkunden=urkunden)
+
 @app.route('/new_tn', methods=['POST','GET'])
 def new_tn():
     print("new tn")

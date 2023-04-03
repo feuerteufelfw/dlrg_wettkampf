@@ -502,6 +502,11 @@ def get_export_files(): #returnt alle files in /files/export/
     for file in os.listdir(os.path.abspath(".") + '/files/export/'):
         files.append(file)
     return files
+def get_urkunden_files():
+    files = []
+    for file in os.listdir(os.path.abspath(".") + '/files/Urkunden_Zusammenfassung/'):
+        files.append(file)
+    return files
 def test():
     dataframe2 = pd.read_excel(os.path.abspath(".") + '/files/Teilnehmer.xlsx', index_col=False, )
     tn_anzahl = len(dataframe2)
