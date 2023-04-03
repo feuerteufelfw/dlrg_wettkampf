@@ -64,7 +64,7 @@ class auswertung():
         print('Auswertung start')
         #auslesen der einzlenen Tielnehmer Daten
         with open(os.path.abspath(".") + '/files/zeiten.csv') as csvdatei:
-            dataframe1 = pd.read_excel(os.path.join(os.path.abspath(".") + '/files/Teilnehmer.xlsx'),engine='openpyxl', index_col=False)
+            dataframe1 = pd.read_csv(os.path.join(os.path.abspath(".") + '/files/Teilnehmer.csv'), sep=',',index_col=False)
             csv_reader_object =csv.reader(csvdatei)
             y = 1
             x = 1
@@ -197,38 +197,43 @@ class auswertung():
 
 def new_teilnehmer_file():
     print('start new Teilnehmer')
-    dataframe1 = pd.read_excel(speicher.new_teilnehmer_file, index_col=False) #liest die Daten in ein pandas dataframe ein
-    dataframe2 = pd.read_excel(os.path.abspath(".") + '/files/Teilnehmer.xlsx',index_col = False,)
+    dataframe1 = pd.read_excel('files/Teilnehmer.xlsx', index_col=False) #liest die Daten in ein pandas dataframe ein
+    dataframe2 = pd.read_csv(os.path.abspath(".") + '/files/teilnehmer.csv',index_col = False,)
     teilnehmer_vorhanden = False
     # vergleicht alle eingetragenen daten um dopplungen zu vermeiden
     #ist der Teilnehmer noch nicht in der alten liste wird er hinzugefügt
     for i, row in dataframe1.iterrows():
-        for x,row2 in dataframe2.iterrows():
-            # print(row)
-            #print('row1: ' + str(row.get('Teilnehmer Nummer')))
-           # print('row2: ' + str(row2.get('Teilnehmer Nummer')))
-            if row.get('Teilnehmer Nummer') == row2.get('Teilnehmer Nummer'):#wenn der Teilnehmer bereits vorhanden ist
-                print('Teilnehmer ist bereits vorhanden')
-                teilnehmer_vorhanden = True
+        tn_number = row.get('Teilnehmer Nummer')
+        print(tn_number)
+        print(get_teilnehmer_infos(tn_number))
+        if get_teilnehmer_infos(tn_number).empty:
+            teilnehmer_vorhanden = False
+        else:
+            teilnehmer_vorhanden = True
         if not teilnehmer_vorhanden:#wenn der Teilnehmer neu ist
-            #print('neuen Teilnehmer speichern')
-            #print(row)
-            #print(i)
-            dataframe2 = dataframe2.append(row)
-        teilnehmer_vorhanden = False
-    #print(dataframe2)
-    dataframe2.to_excel(speicher.teilnehmer_file_excl,index=False)#überträgt alle teilnehmer in den haupt file
-    os.remove(speicher.new_teilnehmer_file)#löscht den file in dem die neuen Teilnehmer standen
+            with open(os.path.abspath(".") + '/files/teilnehmer.csv','a') as csv_datei:
+                writer = csv.writer(csv_datei)
+                print(row)
+                list = [tn_number,row.get('Vorname'),row.get('Nachname'),row.get('Verein'),row.get('Altersklasse'),row.get('Disziplin')]#print(dataframe2)
+                print(list)
+                writer.writerow(list)
+                csv_datei.close()
+    #dataframe2.to_excel(speicher.teilnehmer_file_excl,index=False)#überträgt alle teilnehmer in den haupt file
+    #os.remove(speicher.new_teilnehmer_file)#löscht den file in dem die neuen Teilnehmer standen
 def new_tn(tn_vorname,tn_nachname,tn_ak,tn_disziplin,verein):
-    dataframe2 = pd.read_excel(os.path.abspath(".") + '/files/Teilnehmer.xlsx', index_col=False, )
-    tn_anzahl = len(dataframe2)
+    dataframe1 = pd.read_csv(  os.path.join(os.path.abspath(".") + '/files/Teilnehmer.csv'),sep = ',',index_col=False)
+    tn_anzahl = len(dataframe1)
     tn_anzahl = tn_anzahl + 1
     tn_info = get_teilnehmer_infos(tn_anzahl)
     while tn_info.empty == False:
         tn_anzahl = tn_anzahl + 1
         tn_info = get_teilnehmer_infos(tn_anzahl)
-    dataframe2.append({'Teilnehmer Nummer' : tn_anzahl,'Vorname' : tn_vorname, 'Nachname' : tn_nachname,'Verein' : verein, 'Altersklasse' : tn_ak, 'Disziplin' : tn_disziplin}, ignore_index = True)
-    dataframe2.to_excel( os.path.abspath(".") + '/files/Teilnehmer.xlsx', index=False)
+    with open(os.path.abspath(".") + '/files/teilnehmer.csv', 'a') as csv_datei:
+        writer = csv.writer(csv_datei)
+        list = [tn_anzahl, tn_vorname,tn_nachname,verein,tn_ak,tn_disziplin]
+        print(list)
+        writer.writerow(list)
+        csv_datei.close()
     return tn_anzahl
 #alles runt um Zeitstoppen
 class stoppuhr:
@@ -483,7 +488,8 @@ class export:
 
 def get_teilnehmer_infos(teilnehmer_nummer):
     print('start get teilnehmer infos')
-    dataframe1 = pd.read_excel(  os.path.join(os.path.abspath(".") + '/files/Teilnehmer.xlsx'), engine='openpyxl', index_col=False) #ruft Teilnehmer.xlsx als dataframe auf
+    dataframe1 = pd.read_csv(  os.path.join(os.path.abspath(".") + '/files/Teilnehmer.csv'),sep = ',',index_col=False) #ruft Teilnehmer.xlsx als dataframe auf
+    print(dataframe1)
     teilnehmer = dataframe1.loc[dataframe1['Teilnehmer Nummer'] == int(teilnehmer_nummer)]#sucht den Teilnehmer mit der entsprechenden Teilnehmern nummer raus
     return teilnehmer
 def reset_export():
@@ -511,8 +517,8 @@ def main():
         loade_config()
         #export
         #export.export_xlsx(export,"2200m")
-
+        new_teilnehmer_file()
         #test()
-        Web_interface.start_Web_interface()
+        #Web_interface.start_Web_interface()
 if __name__ == '__main__':
     main()
