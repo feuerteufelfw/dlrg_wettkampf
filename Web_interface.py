@@ -61,6 +61,8 @@ def index():
         elif flask.request.form.get("downloade_start") == 'downloade files':
             liste = main.get_export_files()
             return flask.render_template('upload.html', files =liste)
+        elif flask.request.form.get("new_user_bt") == 'Neuer Teilnehmer':
+            return flask.render_template('new_tn.html',tn_num = "")
         else:
             pass  #
     elif flask.request.method == 'GET':
@@ -117,9 +119,9 @@ def upload_teilnehmer():
         print('uploade teilnehmer file')
         f = flask.request.files.get('file')
         if f:
-            file_path = teilnehmer_file + '/' + f.filename
+            file_path = teilnehmer_file + '/' + "new_tn.xlsx"
             f.save(file_path)
-            #main.new_teilnehmer()
+            main.new_teilnehmer_file()
             return flask.render_template("einstellungen.html")
         if flask.request.form.get('home') == 'home':
             disziplinen_list = main.get_disziplinen()
@@ -185,6 +187,19 @@ def einstellungen():
         elif flask.request.form.get("reset_button") == "reset export":
             main.reset_export()
             return flask.render_template('einstellungen.html',uploade_file_display='block')
+@app.route('/new_tn', methods=['POST','GET'])
+def new_tn():
+    print("new tn")
+    if flask.request.method == 'POST':
+        if flask.request.form.get('save_bt'):
+            vorname = flask.request.form['Vorname_textfield']
+            nachname = flask.request.form["Nachname_textfield"]
+            ak= flask.request.form["AK_textfield"]
+            disziplin = flask.request.form["Disziplin_textfield"]
+            verein = flask.request.form["Verein_textfield"]
+            tn_num = main.new_tn(vorname,nachname,ak,disziplin,verein)
+            return flask.render_template('new_tn.html', tn_num =tn_num)
+    return flask.render_template("new_tn.html",tn_num="")
 @app.route('/files',methods=['POST','GET'])
 def files():
     print('files')
@@ -204,6 +219,7 @@ class speicher:
 uhr = flask.Flask(__name__, static_folder='static')
 
 def start_Web_interface():
-    app.run(host='DESKTOP-91HA56Q', port='5000')
+    #app.run(host='DESKTOP-91HA56Q', port='5000')
+    app.run()
 temp_class = speicher()
 

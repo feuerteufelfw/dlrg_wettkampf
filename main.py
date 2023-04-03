@@ -11,7 +11,7 @@ import time #fürs zeitstoppen
 import csv
 import sqlite3
 import datetime
-from subprocess import  Popen
+#from subprocess import  Popen
 
 import urkunde_old
 
@@ -54,7 +54,7 @@ def loade_config():
     speicher.zwischenspeicher_file = zwischenspeicher_file
     urkunden_Output_file = os.path.abspath(".") + '/files/Urkunden_Gesamt.pdf'
     speicher.urkunde_output_file = urkunden_Output_file
-    new_teilnehmer_file = os.path.abspath(".") + '/files/Teilnehmer.xlsx'
+    new_teilnehmer_file = os.path.abspath(".") + '/files/new_tn.xlsx'
     speicher.new_teilnehmer_file = new_teilnehmer_file
     new_zeiten_file = os.path.abspath(".") + '/files/zeiten.csv'
     speicher.new_zeiten_file=new_zeiten_file
@@ -195,7 +195,7 @@ class auswertung():
         zeit = str(hours) + ':' + str(minutes) + ':' +str(round(seconds))
         return zeit
 
-def new_teilnehmer():
+def new_teilnehmer_file():
     print('start new Teilnehmer')
     dataframe1 = pd.read_excel(speicher.new_teilnehmer_file, index_col=False) #liest die Daten in ein pandas dataframe ein
     dataframe2 = pd.read_excel(os.path.abspath(".") + '/files/Teilnehmer.xlsx',index_col = False,)
@@ -219,8 +219,17 @@ def new_teilnehmer():
     #print(dataframe2)
     dataframe2.to_excel(speicher.teilnehmer_file_excl,index=False)#überträgt alle teilnehmer in den haupt file
     os.remove(speicher.new_teilnehmer_file)#löscht den file in dem die neuen Teilnehmer standen
-
-
+def new_tn(tn_vorname,tn_nachname,tn_ak,tn_disziplin,verein):
+    dataframe2 = pd.read_excel(os.path.abspath(".") + '/files/Teilnehmer.xlsx', index_col=False, )
+    tn_anzahl = len(dataframe2)
+    tn_anzahl = tn_anzahl + 1
+    tn_info = get_teilnehmer_infos(tn_anzahl)
+    while tn_info.empty == False:
+        tn_anzahl = tn_anzahl + 1
+        tn_info = get_teilnehmer_infos(tn_anzahl)
+    dataframe2.append({'Teilnehmer Nummer' : tn_anzahl,'Vorname' : tn_vorname, 'Nachname' : tn_nachname,'Verein' : verein, 'Altersklasse' : tn_ak, 'Disziplin' : tn_disziplin}, ignore_index = True)
+    dataframe2.to_excel( os.path.abspath(".") + '/files/Teilnehmer.xlsx', index=False)
+    return tn_anzahl
 #alles runt um Zeitstoppen
 class stoppuhr:
     def __init__(self,disziplin):
@@ -489,12 +498,21 @@ def get_export_files(): #returnt alle files in /files/export/
     for file in os.listdir(os.path.abspath(".") + '/files/export/'):
         files.append(file)
     return files
+def test():
+    dataframe2 = pd.read_excel(os.path.abspath(".") + '/files/Teilnehmer.xlsx', index_col=False, )
+    tn_anzahl = len(dataframe2)
+    tn_anzahl = tn_anzahl + 1
+    tn_info = get_teilnehmer_infos(tn_anzahl)
+    if tn_info.empty:
+        print('empty')
 def main():
     if __name__ == '__main__':
-        loade_ak()
+        #loade_ak()
         loade_config()
-        export
+        #export
         #export.export_xlsx(export,"2200m")
+
+        #test()
         Web_interface.start_Web_interface()
 if __name__ == '__main__':
     main()
