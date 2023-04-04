@@ -1,0 +1,12 @@
+div.big_button > input {
+    width: 49%;
+    height: 10vh;
+}
+.small_bt {
+    width: 100px;
+    height: 4vh;
+}
+div.num_bt > input{
+    width: 33%;
+    height: 10vh;
+}

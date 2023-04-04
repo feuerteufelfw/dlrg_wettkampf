@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
   <title>Start</title>
-	<link rel="stylesheet" href="C:\Users\feuer\OneDrive\Dokumente\DLRG\Wettkampfrechner\tamplate\static\styles_zeit.css">
+	<link rel="stylesheet" href="/static/styles.css">
 </head>
  <body >
 	<div class="startup" style="display:{{display_startup}}">
@@ -17,20 +17,20 @@
 		<input type="submit" value="home" name="home_button" >
 		</form>
 		<form method="post" action="/zeit_messung">
-
-			<input type="submit" value="1" name="Zahlen_button" style="width:33%;  height:10vh"/>
-			<input type="submit" value="2" name="Zahlen_button" style="width:33%; height:10vh"/>
-			<input type="submit" value="3" name="Zahlen_button" style="width:33%; height:10vh"/>
-			<input type="submit" value="4" name="Zahlen_button" style="width:33%; height:10vh"/>
-			<input type="submit" value="5" name="Zahlen_button"style="width:33%; height:10vh"/>
-			<input type="submit" value="6" name="Zahlen_button" style="width:33%; height:10vh"/>
-			<input type="submit" value="7" name="Zahlen_button" style="width:33%; height:10vh"/>
-			<input type="submit" value="8" name="Zahlen_button" style="width:33%; height:10vh"/>
-			<input type="submit" value="9" name="Zahlen_button" style="width:33%; height:10vh"/>
-			<input type="submit" value="back" name="back_button" style="width:33%; height:10vh"/>
-			<input type="submit" value="0" name="Zahlen_button" style="wwidth:33%; height:10vh"/>
-			<input type="submit" value="enter" name="enter_button" style="width:33%; height:10vh"/>
-
+			<div class = "num_bt" >
+				<input type="submit" value="1" name="Zahlen_button"/>
+				<input type="submit" value="2" name="Zahlen_button">
+				<input type="submit" value="3" name="Zahlen_button"/>
+				<input type="submit" value="4" name="Zahlen_button">
+				<input type="submit" value="5" name="Zahlen_button"/>
+				<input type="submit" value="6" name="Zahlen_button"/>
+				<input type="submit" value="7" name="Zahlen_button"/>
+				<input type="submit" value="8" name="Zahlen_button"/>
+				<input type="submit" value="9" name="Zahlen_button"/>
+				<input type="submit" value="back" name="back_button"/>
+				<input type="submit" value="0" name="Zahlen_button"/>
+				<input type="submit" value="enter" name="enter_button" />
+			</div>
 			<br>
 			<p>Teilnehmernummer:  {{prediction_text}}</p>
 
