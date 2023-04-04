@@ -70,30 +70,34 @@ class auswertung():
             x = 1
            # print(csv_reader_object)
             list_teilnehmer_dict = []
+            print(csv_reader_object)
             for row in csv_reader_object:
-               # print(row[0])
-                teilnehmer_nummer = row[0]
-
-                teilnehmer = dataframe1.loc[dataframe1['Teilnehmer Nummer'] == int(teilnehmer_nummer)]
-               # print(teilnehmer)
-                teilnehmer_Zeit = row[1]
-                teilnehmer_Vorname = teilnehmer['Vorname'].values[0]
-                teilnehmer_Nachname =  teilnehmer['Nachname'].values[0]
-                teilnehmer_Verein = teilnehmer['Verein'].values[0]
-                teilnehmer_Altersklasse = teilnehmer['Altersklasse'].values[0]
-                teilnehmer_Disziplin = teilnehmer['Disziplin'].values[0]
-                print(teilnehmer_Vorname)
-               # print('vorname ' + teilnehmer['Vorname'])
-                cust_1 = {
-                    'teilnehmer_Vorname': teilnehmer_Vorname,
-                    'teilnehmer_Nachname': teilnehmer_Nachname,
-                    'teilnehmer_Altersklasse': teilnehmer_Altersklasse,
-                    'teilnehmer_Verein': teilnehmer_Verein,
-                    'teilnehmer_Disziplin': teilnehmer_Disziplin,
-                    'teilnehmer_Zeit': teilnehmer_Zeit,
-                    'teilnehmer_Nummer': teilnehmer_nummer,
-                }
-                list_teilnehmer_dict.append(cust_1)
+               #print(row[0])
+                try:
+                    print(row)
+                    teilnehmer_nummer = row[0]
+                    teilnehmer = dataframe1.loc[dataframe1['Teilnehmer Nummer'] == int(teilnehmer_nummer)]
+                   # print(teilnehmer)
+                    teilnehmer_Zeit = row[1]
+                    teilnehmer_Vorname = teilnehmer['Vorname'].values[0]
+                    teilnehmer_Nachname =  teilnehmer['Nachname'].values[0]
+                    teilnehmer_Verein = teilnehmer['Verein'].values[0]
+                    teilnehmer_Altersklasse = teilnehmer['Altersklasse'].values[0]
+                    teilnehmer_Disziplin = teilnehmer['Disziplin'].values[0]
+                    print(teilnehmer_Vorname)
+                   # print('vorname ' + teilnehmer['Vorname'])
+                    cust_1 = {
+                        'teilnehmer_Vorname': teilnehmer_Vorname,
+                        'teilnehmer_Nachname': teilnehmer_Nachname,
+                        'teilnehmer_Altersklasse': teilnehmer_Altersklasse,
+                        'teilnehmer_Verein': teilnehmer_Verein,
+                        'teilnehmer_Disziplin': teilnehmer_Disziplin,
+                        'teilnehmer_Zeit': teilnehmer_Zeit,
+                        'teilnehmer_Nummer': teilnehmer_nummer,
+                    }
+                    list_teilnehmer_dict.append(cust_1)
+                except:
+                    print("error leere zeile in zeitenfile erkannt")
             auswertung.ak_und_disziplin_zuordnung(self,list_teilnehmer_dict,ak)
             auswertung.arry_sort(self,ak)
             #export.export(export,ak)
@@ -299,7 +303,7 @@ def get_disziplinen(): #return list mit allen disziplinen
     return disziplinen_list
 def loade_ak():#list alle vorhandenen Altersklassen aus und returnt diese als list
 
-    dataframe1 = pd.read_excel(os.path.join(os.path.abspath(".") + '/files/Teilnehmer.xlsx'), engine='openpyxl', index_col=False)
+    dataframe1 = pd.read_csv(os.path.join(os.path.abspath(".") + '/files/teilnehmer.csv'), index_col=False)
     df_altersklassen = dataframe1['Altersklasse']
     print(df_altersklassen)
     altersklassen = []

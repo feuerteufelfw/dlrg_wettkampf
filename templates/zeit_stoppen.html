@@ -6,20 +6,13 @@
 	<link rel="stylesheet" href="C:\Users\feuer\OneDrive\Dokumente\DLRG\Wettkampfrechner\tamplate\static\styles_zeit.css">
 </head>
  <body >
- <p>Dies ist eine Überschrift</p>
-	<div class="startup" style="visibility:{{ visibility_startup }};">
+	<div class="startup" style="display:{{display_startup}}">
 		<form method="post" action="/zeit_messung">
-			<input type="submit" value="start" name="start_button"/>
-			<label>Disziplin:</label>
-			<select name="Disziplin">
-			{%for text in disziplinen %}
-            <option value="{{text}}">{{text}}</option>
-            {% endfor %}
+			<input type="submit" value="start" name="start_button"  style="width: 50%; height:50vh; margin:25%"/>
         </select>
 		</form>
 	</div>		
-    <div class="calbottom" style="visibility:{{ visibility }}">
-		 <p>Strecke: {{disziplin}}</p>
+    <div class="calbottom" style="display:{{ display_zeit_stoppen }}">
 		<form method="post" action="/zeit_messung">
 		<input type="submit" value="home" name="home_button" >
 		</form>
@@ -35,7 +28,7 @@
 			<input type="submit" value="8" name="Zahlen_button" style="width:33%; height:10vh"/>
 			<input type="submit" value="9" name="Zahlen_button" style="width:33%; height:10vh"/>
 			<input type="submit" value="back" name="back_button" style="width:33%; height:10vh"/>
-			<input type="submit" value="0" name="Zahlen_button" style="width:33%; height:10vh"/>
+			<input type="submit" value="0" name="Zahlen_button" style="wwidth:33%; height:10vh"/>
 			<input type="submit" value="enter" name="enter_button" style="width:33%; height:10vh"/>
 
 			<br>

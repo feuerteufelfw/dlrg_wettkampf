@@ -40,7 +40,7 @@ def index():
     if flask.request.method == 'POST':
         if flask.request.form.get('einstellungen_button') == 'Einstellungen':
             print('einstellungen Klick')
-            return flask.render_template('einstellungen.html', display_teilnehmer = "none", display_urkunde ="none")
+            return flask.render_template('einstellungen.html', display_teilnehmer = "none", display_urkunde ="none", display_teilnehmer_list = "none")
             pass  # do something
         elif flask.request.form.get('auswertung_start') == 'Auswertung start':
             print('start Auswertung click')
@@ -51,8 +51,7 @@ def index():
             disziplinen_list = main.get_disziplinen()
             return  flask.render_template('home.html')
         elif flask.request.form.get('zeitmessung_start') == 'zeitmessung start':
-            disziplinen_list = main.get_disziplinen()
-            return flask.render_template('zeit_stoppen.html',visibility="hidden",visibility_startup="visible",disziplinen=disziplinen_list)
+            return flask.render_template('zeit_stoppen.html',display_zeit_stoppen="none",displya_startup="True")
             print('config uploade')
         elif flask.request.form.get('export') =='export':
             disziplin = flask.request.form["Disziplin"]
@@ -113,21 +112,7 @@ def uploade_urkunde():
         return flask.render_template("einstellungen.html")
     return flask.render_template("einstellungen.html")
 #______________________________________________uploade teilnehmer
-@app.route('/upload_teilnehmer',methods=[ 'POST','GET'])
-def upload_teilnehmer():
-    print('uploade teilnehmer')
-    if flask.request.method == 'POST':
-        print('uploade teilnehmer file')
-        f = flask.request.files.get('file')
-        if f:
-            file_path = teilnehmer_file + '/' + "new_tn.xlsx"
-            f.save(file_path)
-            main.new_teilnehmer_file()
-            return flask.render_template("einstellungen.html")
-        if flask.request.form.get('home') == 'home':
-            disziplinen_list = main.get_disziplinen()
-            return flask.render_template('home.html',disziplinen=disziplinen_list)
-        return flask.render_template("einstellungen.html")
+
 @app.route('/zeit_messung',methods=[ 'POST','GET'])
 def zeit_messung():
     print("zeit messung")
@@ -135,7 +120,7 @@ def zeit_messung():
         if flask.request.form.get('back_button') == 'back':
             Web_interface.temp_class.temp_teilnehmer_nummer = temp_class.temp_teilnehmer_nummer[0:len(temp_class.temp_teilnehmer_nummer) - 1]
             print('back button push')
-            return flask.render_template('zeit_stoppen.html', prediction_text=str(temp_class.temp_teilnehmer_nummer),visibility_startup="hidden",visibility="visible",disziplin=speicher.disziplin)
+            return flask.render_template('zeit_stoppen.html', prediction_text=str(temp_class.temp_teilnehmer_nummer),display_startup="none",display_zeit_stoppem="True")
         elif flask.request.form.get('enter_button') == 'enter':
             print('enter button push')
             teilnehmer_zeit = main.stoppuhr.new_time(main.stoppuhr,temp_class.temp_teilnehmer_nummer,temp_class.start_time)
@@ -146,24 +131,18 @@ def zeit_messung():
             teilnehmer = dict( nummer = teilenhmer_nummer,name = teilnehmer_name, zeit = teilnehmer_zeit)
             temp_class.last_teilnehmer_list.append(teilnehmer)
             temp_class.temp_teilnehmer_nummer = ''
-            return flask.render_template('zeit_stoppen.html', prediction_text=' ',visibility_startup="hidden",visibility="visible",disziplin=speicher.disziplin,teilnehmer_list = temp_class.last_teilnehmer_list)
+            return flask.render_template('zeit_stoppen.html', prediction_text=' ',display_startup="none",display_zeit_stoppen="True",teilnehmer_list = temp_class.last_teilnehmer_list)
         elif flask.request.form.get('start_button') == 'start':
-            speicher.disziplin = flask.request.form["Disziplin"]
-            print(speicher.disziplin)
-            if speicher.disziplin:
-                temp_class.disziplin = speicher.disziplin
-                temp_class.start_time = time.monotonic()
-                print('hi')
-                return flask.render_template('zeit_stoppen.html',visibility="visible",visibility_startup="hidden",disziplin=speicher.disziplin)
-            else:
-                return flask.render_template('zeit_stoppen.html',visibility = "hidden",visibillity_startup = 'visible',disziplin=speicher.disziplin)
+            temp_class.start_time = time.monotonic()
+            print('hi')
+            return flask.render_template('zeit_stoppen.html',display_zeit_stoppen="True",display_startup="none")
         elif flask.request.form.get('Zahlen_button'):
             temp_class.temp_teilnehmer_nummer  = temp_class.temp_teilnehmer_nummer + str(flask.request.form.get('Zahlen_button'))
             print(flask.request.form.get('Zahlen_button'))
-            return flask.render_template('zeit_stoppen.html', prediction_text=str(temp_class.temp_teilnehmer_nummer ),visibility ="visible",visibility_startup='hidden',disziplin=speicher.disziplin,teilnehmer_list = temp_class.last_teilnehmer_list)
+            return flask.render_template('zeit_stoppen.html', prediction_text=str(temp_class.temp_teilnehmer_nummer ),display_zeit_stoppen ="True",display_startup='none',teilnehmer_list = temp_class.last_teilnehmer_list)
         elif flask.request.form.get("home_button") == "home":
             disziplinen_list = main.get_disziplinen()
-            return flask.render_template("home.html",disziplinen=disziplinen_list)
+            return flask.render_template("home.html")
 
 @app.route('/download/<path:filename>', methods=['GET'])
 def download(filename):
@@ -179,10 +158,7 @@ def einstellungen():
 
     print('methode einstellungen')
     if flask.request.method == 'POST':
-        if flask.request.form.get('neues_datum_bt') == 'enter':
-            datum = flask.request.form('datum_textfield')
-            print("Datum: " + datum)
-        elif flask.request.form.get('urkunden_bt'):
+        if flask.request.form.get('urkunden_bt'):
             urkunden = main.get_urkunden_files()
             print(urkunden)
             return flask.render_template('einstellungen.html',display_urkunde="True",display_teilnehmer="none",urkunden=urkunden)
@@ -208,6 +184,14 @@ def einstellungen():
             print("teilnehmer list bt klick")
             teilnehmer_list = main.get_teilnehmer_list()
             return flask.render_template('einstellungen.html', display_urkunde="none",display_teilnehmer="True",diplay_teilnehmer_list = "True",Teilnehmer_array = teilnehmer_list)
+        elif flask.request.form.get("uploade_teilnehmer_bt"):
+            print('uploade teilnehmer bt klicks')
+            neuer_teilnehmer_file = flask.request.files['teilnehmer_file']
+            print(190)
+            neuer_teilnehmer_file.save(os.path.join(os.path.abspath(".") + "/files/Teilnehmer.xlsx"))
+            print(192)
+            main.new_teilnehmer_file()
+            return flask.render_template('einstellungen.html', display_urkunde ="none", display_teilnehmer="True",display_teilnehmer_list="none")
 
 @app.route('/new_tn', methods=['POST','GET'])
 def new_tn():

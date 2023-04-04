@@ -31,14 +31,14 @@
             </form>
             <br/>
         </div>
-        <form method="post" action="/einstellungen" >
+        <form method="post" action="/einstellungen"  enctype="multipart/form-data" >
             <input type="submit" value="Teilnehmer" name="teilnehmer_bt" style="width:25%;  height:10vh"/>
             <br/>
               <div class = "Teilnehmer" style = "display:{{display_teilnehmer}}" action = "/einstellungen">
                   <form action = "/einstellungen" method = "post" enctype="multipart/form-data">
                       <label for ="teilnehmer_file"> Teilnehmer Liste hinzufügen: </label>
                       <input type = "file" name ="teilnehmer_file" id = "teilnehmer_file"/>
-                      <input type = "submit" name = "uploade_urkunde_bt" value = "uploade"/>
+                      <input type = "submit" name = "uploade_teilnehmer_bt" value = "uploade"/>
                       <br/>
                   </form>
                   <input type="submit" name="show_teilnehmer_bt" value = "Teilnehmer anzeigen"/>
@@ -64,11 +64,8 @@
                   </div>
               </div>
         </form>
-        <input type="submit" value="Zurücksetzen" name="reset_bt" style="width:24%;  height:10vh"/>
+        <input type="submit" value="Zurücksetzen" name="reset_bt" style="width:25%;  height:10vh"/>
         <br/>
-        <label for="datum_textfield" >Datum: </label>
-        <input type = "text" id = "datum_textfield" name = "datum_textfield" />
-        <input type = "submit" value="enter" name ="neue_datum_bt"/>
     </form>
 
 
