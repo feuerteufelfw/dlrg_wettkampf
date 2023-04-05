@@ -43,15 +43,15 @@
                   </form>
                   <input type="submit" name="show_teilnehmer_bt" value = "Teilnehmer anzeigen"/>
                   <br/>
-                  <div class = "Teilnehmer_list" style = "display:{{display_teilnehmer_list}}">
-                      <table rules = all border = [10px]>
+                  <div class = "Teilnehmer_liste container " style = "display:{{display_teilnehmer_list}}">
+                      <table class = "data">
                           <tr>
-                              <th>Teilnehmer Nummer</th>
-                              <th>Vorname</th>
-                              <th>Nachname</th>
-                              <th>Verein</th>
-                              <th>Altersklasse</th>
-                              <th>Disziplin</th>
+                              <th class="tn"> TN</th>
+                              <th class="vname">Vorname </th>
+                              <th class="nachname">Nachname </th>
+                              <th class="verein">Verein </th>
+                              <th class="ak">AK </th>
+                              <th class="disziplin">Disziplin </th>
                           </tr>
                          {% for teilnehmer in Teilnehmer_array %}
                           <tr>

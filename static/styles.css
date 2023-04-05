@@ -10,3 +10,31 @@ div.num_bt > input{
     width: 33%;
     height: 10vh;
 }
+.data, th, td {
+ border: 1px solid black;
+ border-collapse: collapse;
+ padding: 4px;
+}
+.container {
+ height: 300px;
+ width: 60%;
+ overflow-y: scroll;
+}
+th.vname{
+    width: 25%;
+}
+th.nachname{
+    width: 25%;
+}
+th.ak {
+    width: 10%
+}
+th.verein{
+    width: 20%;
+}
+th.tn{
+    width: 15%;
+}
+tn.disziplin{
+    width: 10%;
+}
