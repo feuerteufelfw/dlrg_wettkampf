@@ -1,7 +1,7 @@
 #import Zeug
 import os
 import pythoncom
-import win32com
+#import win32com
 from PyPDF2 import PdfMerger    #zusammenfügen von pdf dateien
 import mailmerge #um auf die Textfelder in word zuzugreifen
 import pandas as pd
@@ -11,6 +11,8 @@ import time #fürs zeitstoppen
 import csv
 import sqlite3
 import datetime
+from docx2pdf import convert
+import test
 #from subprocess import  Popen
 
 import urkunde_old
@@ -127,7 +129,7 @@ class auswertung():
                 sql_command ='''SELECT count(name) FROM sqlite_master WHERE type='table' AND name="''' +name+ '''"'''
                 cursor.execute(sql_command)
                 if cursor.fetchone()[0] < 1:
-                    sql_command = """CREATE TABLE """ + name + """(Teilnehmer_Vorname VARCHAR(50), Teilnehmer_Nachname VARCHAR(25), Disziplin VARCHAR(10), Verein VARCHAR(50), Teilnehmernummer VARCHAR(4), Zeit VARCHAR(32),Position VARCHAR(20))"""
+                    sql_command = """CREATE TABLE """ + name + """(Teilnehmer_Vorname VARCHAR(50), Teilnehmer_Nachname VARCHAR(25), Disziplin VARCHAR(10), Verein VARCHAR(50), Teilnehmernummer VARCHAR(4), Zeit FLOATexpo,Position VARCHAR(20))"""
                     #print(sql_command)
                     cursor.execute(sql_command)
         for teilnehmer in teilnehmer_list:
@@ -154,17 +156,22 @@ class auswertung():
         datenbank.close()
 
     def arry_sort(self,ak): #sortiert die datenbank um platzierungen zu ermitteln
+        print("start sort array")
         datenbank = sqlite3.connect("ergebnis.db")
         disziplinen = get_disziplinen()
         altersklassen = ak
         # datenbank.set_trace_callback(print)
         cursor = datenbank.cursor()
+        print("163")
         for disziplin in disziplinen:
+            print("165")
             for ak in altersklassen:
+                print("167")
                 tabelle = ak + '_' + disziplin
                 cursor.execute("SELECT * FROM " + tabelle)
                 teilnehmer_list = cursor.fetchall()
-                #  print(teilnehmer_list)
+                print("zeile 168")
+                print(teilnehmer_list)
                 cursor.execute("DELETE FROM " + tabelle)
                 datenbank.commit()
 
@@ -175,6 +182,10 @@ class auswertung():
                     for x in range(len(teilnehmer_list)):
                         if x > i:
                             if teilnehmer_list[i][5] > teilnehmer_list[x][5]:
+                                print("Teilnehmer_list[i]")
+                                print(teilnehmer_list[i])
+                                print("Teilnehmer_list[i][5]")
+                                print(teilnehmer_list[i][5])
                                 temp = teilnehmer_list[i]
                                 teilnehmer_list[i] = teilnehmer_list[x]
                                 teilnehmer_list[x] = temp
@@ -321,21 +332,23 @@ class export:
         self.temp_pfd_pfad =  os.path.abspath(".") + '/files/temp/pdf/'
         self.temp_docx_pfad = os.path.abspath(".") + '/files/temp/docx/'
         self.export_pfad= os.path.abspath(".") + '\\files\\ergebnisse.pdf'
-    def export(self,disziplin ):
+    def export(self ):
+        pythoncom.CoInitialize()
         ak = loade_ak()
         datenbank = sqlite3.connect("ergebnis.db")
         cursor = datenbank.cursor()
         disziplinen = get_disziplinen()
         print(disziplinen)
-        for akl in ak:
-            tabelle = akl + '_' + disziplin
-            print(tabelle)
-            cursor.execute("SELECT * FROM " + tabelle)
-            teilnehmer_list = cursor.fetchall()
-            if len(teilnehmer_list) > 0:
-                # print('zeile 209')
-                # print(teilnehmer_list)
-                self.write_to_docx(self,teilnehmer_list, disziplin, akl)
+        for disziplin in disziplinen:
+            for akl in ak:
+                tabelle = akl + '_' + disziplin
+                print(tabelle)
+                cursor.execute("SELECT * FROM " + tabelle)
+                teilnehmer_list = cursor.fetchall()
+                if len(teilnehmer_list) > 0:
+                    # print('zeile 209')
+                    # print(teilnehmer_list)
+                    self.write_to_docx(self,teilnehmer_list, disziplin, akl)
         print('schlafe 5 s')
         time.sleep(5)
         for f in os.listdir(os.path.abspath(".") + '/files/temp/docx/'):
@@ -345,6 +358,10 @@ class export:
         time.sleep(2)
         self.delete_temp_files(self)
         self.export_xlsx(self,disziplin)
+        try:
+            pythoncom.UnInitialize()
+        except:
+            print("buffer")
     def write_to_docx(self,list_teilnehmer, disziplin, ak):#überträgt daten in textfieldes des docx dokumentes
         print('write do dox: ' + disziplin)
         print(list_teilnehmer)
@@ -415,19 +432,19 @@ class export:
                 print('daten in docx übertragen')
                 Urkunden_dokument.close()
 
+
         else:
             print('error keine daten erhalten')
         try:
             Urkunden_dokument.close()
+
         except:
             print('nö')
 
+
     def docx_to_pdf(self,inputFile): # convertiert docx datei zu pdf
         print('start docx_to_pdf')
-        wdFormatPDF = 17
         x = 1
-        word = win32com.client.DispatchEx("Word.Application", pythoncom.CoInitialize())
-        word.Visible = True
         check = True
         while check: #um keine vorhandenen datei zu überschreiben
             outputFile =os.path.abspath(".") + '/files/temp/pdf/'+ str(x) + '.pdf'
@@ -436,11 +453,9 @@ class export:
                 x = x + 1
             else:
                 check = False
-        word.Visible = True
-        doc = word.Documents.Open(inputFile)
-        doc.SaveAs(str(outputFile), FileFormat=wdFormatPDF)
-        doc.Close(0)
-        word.Quit()
+        print(str(outputFile))
+        convert(inputFile,outputFile)
+        print("wtf was fürn sscheiß")
     def merge_pdf(self,disziplin):#fügt alle dateien in /files/temp/pdf/ zu einer pdf zusammen
         print('merge pdf')
         check = True
@@ -511,7 +526,7 @@ def get_urkunden_files():
     for file in os.listdir(os.path.abspath(".") + '/files/Urkunden_Zusammenfassung/'):
         files.append(file)
     return files
-def test():
+def test1():
     dataframe2 = pd.read_excel(os.path.abspath(".") + '/files/Teilnehmer.xlsx', index_col=False, )
     tn_anzahl = len(dataframe2)
     tn_anzahl = tn_anzahl + 1
@@ -543,6 +558,7 @@ def main():
         #export.export_xlsx(export,"2200m")
         #new_teilnehmer_file()
         #test()
+
         Web_interface.start_Web_interface()
 if __name__ == '__main__':
     main()

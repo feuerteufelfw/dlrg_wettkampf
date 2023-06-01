@@ -1,6 +1,6 @@
 #import gedöns
 import os
-import threading
+#import threading
 from pathlib import Path
 import flask
 import main
@@ -8,6 +8,7 @@ from flask_dropzone import Dropzone
 import Web_interface
 import time
 from flask_bootstrap import Bootstrap
+import test
 #____________________________________________________definition aller verwendeten pfade
 basedir = os.path.abspath(os.path.dirname(__file__))
 UPLOAD_FOLDER = os.path.join(os.getcwd(), 'files')
@@ -54,8 +55,9 @@ def index():
             return flask.render_template('zeit_stoppen.html',display_zeit_stoppen="none",displya_startup="True")
             print('config uploade')
         elif flask.request.form.get('export') =='export':
-            disziplin = flask.request.form["Disziplin"]
-            main.export.export(main.export,disziplin)
+            print("export click")
+            #test.run()
+            main.export.export(main.export)
             liste = main.get_export_files()
             return flask.render_template('upload.html', files=liste)
         elif flask.request.form.get("downloade_start") == 'downloade files':

@@ -14,3 +14,4 @@ export von ergebnis tabelle xlsx
 export von teilnehmer tabelle xlsx
 test mehrer zugriffe gleichzeitig testen
 password zugriff ?
+diziplin export fix 
