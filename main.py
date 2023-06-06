@@ -5,18 +5,12 @@ import pythoncom
 from PyPDF2 import PdfMerger    #zusammenfügen von pdf dateien
 import mailmerge #um auf die Textfelder in word zuzugreifen
 import pandas as pd
-    #word zu pdf
 import Web_interface
 import time #fürs zeitstoppen
 import csv
 import sqlite3
 import datetime
 from docx2pdf import convert
-import test
-#from subprocess import  Popen
-
-import urkunde_old
-
 #setup der files
 
 #definiren einiger globaler variablen
@@ -25,8 +19,6 @@ t = 1
 start_time = ''
 #zum speichern von variablen welche von überall abgerufen werden können
 class speicher:
-
-
     def __init__(self):
         self.config_file =''
         self.urkunde_file = ''
@@ -72,11 +64,9 @@ class auswertung():
             x = 1
            # print(csv_reader_object)
             list_teilnehmer_dict = []
-            print(csv_reader_object)
             for row in csv_reader_object:
                #print(row[0])
                 try:
-                    print(row)
                     teilnehmer_nummer = row[0]
                     teilnehmer = dataframe1.loc[dataframe1['Teilnehmer Nummer'] == int(teilnehmer_nummer)]
                    # print(teilnehmer)
@@ -86,7 +76,6 @@ class auswertung():
                     teilnehmer_Verein = teilnehmer['Verein'].values[0]
                     teilnehmer_Altersklasse = teilnehmer['Altersklasse'].values[0]
                     teilnehmer_Disziplin = teilnehmer['Disziplin'].values[0]
-                    print(teilnehmer_Vorname)
                    # print('vorname ' + teilnehmer['Vorname'])
                     cust_1 = {
                         'teilnehmer_Vorname': teilnehmer_Vorname,
@@ -114,8 +103,7 @@ class auswertung():
             return False
         else:
             return True
-
-    def ak_und_disziplin_zuordnung(self,teilnehmer_list,ak): #speichert teilnehmer in db, tabellenname abhänigig von ak und disziplin
+    def ak_und_disziplin_zuordnung(self,teilnehmer_list,ak): #speichert teilnehmer in db, tabellenname abhängig von ak und disziplin
         print('start ak und disziplin zuordnung')
         datenbank = sqlite3.connect("ergebnis.db")
         disziplinen = get_disziplinen()
@@ -129,7 +117,7 @@ class auswertung():
                 sql_command ='''SELECT count(name) FROM sqlite_master WHERE type='table' AND name="''' +name+ '''"'''
                 cursor.execute(sql_command)
                 if cursor.fetchone()[0] < 1:
-                    sql_command = """CREATE TABLE """ + name + """(Teilnehmer_Vorname VARCHAR(50), Teilnehmer_Nachname VARCHAR(25), Disziplin VARCHAR(10), Verein VARCHAR(50), Teilnehmernummer VARCHAR(4), Zeit FLOATexpo,Position VARCHAR(20))"""
+                    sql_command = """CREATE TABLE """ + name + """(Teilnehmer_Vorname VARCHAR(50), Teilnehmer_Nachname VARCHAR(25), Disziplin VARCHAR(10), Verein VARCHAR(50), Teilnehmernummer VARCHAR(4), Zeit FLOAT,Position VARCHAR(20))"""
                     #print(sql_command)
                     cursor.execute(sql_command)
         for teilnehmer in teilnehmer_list:
@@ -174,7 +162,6 @@ class auswertung():
                 print(teilnehmer_list)
                 cursor.execute("DELETE FROM " + tabelle)
                 datenbank.commit()
-
                 teilnehmer_list.sort(key=lambda x: x[5])
                 temp = []
                 #print(teilnehmer_list)
@@ -204,10 +191,13 @@ class auswertung():
 
 
     def decode_time(self,zeit): # gibt zeit im Format Stunden:Minuten:Sekunden zurück
+        print(zeit)
         minuten, seconds = divmod(float(zeit), 60)
         #delta_time = time.monotonic()
-        hours, minutes = divmod(minuten, 60)
-        zeit = str(hours) + ':' + str(minutes) + ':' +str(round(seconds))
+        minuten = int(minuten)
+        print( "Minuten: " + str(minuten) + " Sekunden: " + str(seconds))
+        zeit = str(minuten) + ':' +str(round(seconds))
+        print(zeit)
         return zeit
 
 def new_teilnehmer_file():#file mit neuen Teilnehmern wird hinzugefügt
@@ -283,7 +273,7 @@ def reset(): # löscht alles dateien
     try:
         os.remove(os.path.abspath(".")+"/ergebnis.db")
     except:
-        print('keine ergebins Datenbank vorhanden')
+        print('keine Ergebnis Datenbank vorhanden')
     reset_export()
     reset_temp()
     if os.path.exists(os.path.abspath('.')+'/Teilnehmer.xlsx'):
@@ -341,6 +331,8 @@ class export:
         print(disziplinen)
         for disziplin in disziplinen:
             for akl in ak:
+                print("Disziplin: " + disziplin)
+                print("altersklasse: " + akl)
                 tabelle = akl + '_' + disziplin
                 print(tabelle)
                 cursor.execute("SELECT * FROM " + tabelle)
@@ -354,10 +346,11 @@ class export:
         for f in os.listdir(os.path.abspath(".") + '/files/temp/docx/'):
             self.docx_to_pdf(self,os.path.abspath(".") + '/files/temp/docx/' + f)
             time.sleep(1)
-        self.merge_pdf(self,disziplin)
+        self.merge_pdf(self)
+        for disziplin in disziplinen :
+            self.export_xlsx(self, disziplin)
         time.sleep(2)
         self.delete_temp_files(self)
-        self.export_xlsx(self,disziplin)
         try:
             pythoncom.UnInitialize()
         except:
@@ -375,7 +368,11 @@ class export:
             datum = self.get_datum(self)
             for i in list_teilnehmer:
                 x = x + 1
-                teilnehmer_time = auswertung.decode_time(auswertung, i[5]).split(':')[2]
+                teilnehmer_time = auswertung.decode_time(auswertung, i[5])
+                print("Teilnehmerzeit: " + teilnehmer_time)
+                if len(teilnehmer_time.split(":")[1]) < 2:
+                    teilnehmer_time = teilnehmer_time.split(":")[0] + ":0" + teilnehmer_time.split(":")[1]
+                    print("teilnehmer_time edited: " + teilnehmer_time)
                 teilnehmer_time = str(teilnehmer_time)
                 globals()[f"cust_{x}"] = {
                     'teilnehmer_Vorname': i[0],
@@ -398,7 +395,6 @@ class export:
                         Urkunden_dokument.close()
             urkunden_file =os.path.abspath(".") + '/files/Urkunden_Zusammenfassung/' + list_teilnehmer[0][2] + '.docx'
             with mailmerge.MailMerge(urkunden_file) as Urkunden_dokument:
-                print(cust_1)
                 if x == 10:
                     Urkunden_dokument.merge_templates(
                         [cust_1, cust_2, cust_3, cust_4, cust_5, cust_6, cust_7, cust_8, cust_9, cust_10],
@@ -431,17 +427,12 @@ class export:
                 Urkunden_dokument.write(os.path.abspath(".") + '/files/temp/docx/dokument' + str(y) + '.docx')
                 print('daten in docx übertragen')
                 Urkunden_dokument.close()
-
-
         else:
             print('error keine daten erhalten')
         try:
             Urkunden_dokument.close()
-
         except:
             print('nö')
-
-
     def docx_to_pdf(self,inputFile): # convertiert docx datei zu pdf
         print('start docx_to_pdf')
         x = 1
@@ -453,10 +444,8 @@ class export:
                 x = x + 1
             else:
                 check = False
-        print(str(outputFile))
         convert(inputFile,outputFile)
-        print("wtf was fürn sscheiß")
-    def merge_pdf(self,disziplin):#fügt alle dateien in /files/temp/pdf/ zu einer pdf zusammen
+    def merge_pdf(self):#fügt alle dateien in /files/temp/pdf/ zu einer pdf zusammen
         print('merge pdf')
         check = True
         x = 1
@@ -465,9 +454,8 @@ class export:
         for f in os.listdir(os.path.abspath(".") + '/files/temp/pdf/'):
             merger.append(os.path.abspath(".") + '/files/temp/pdf/' + f)
             vorhanden = True
-            print(f)
         if vorhanden: # falls keine dateien exestieren wird auch keine merge datei erstellt
-            merger.write(os.path.abspath(".") + '/files/export/ergebnis_' + disziplin + '.pdf')
+            merger.write(os.path.abspath(".") + '/files/export/ergebnise.pdf')
         merger.close()
 
     def get_datum(self): #gibt das aktuelle datum zurück
@@ -503,13 +491,12 @@ class export:
                 df.to_excel(writer, sheet_name=tabelle)
                 writer.save()
 
-def get_teilnehmer_infos(teilnehmer_nummer):
+def get_teilnehmer_infos(teilnehmer_nummer): #returnt alles infos zu einer tn nummer
     print('start get teilnehmer infos')
     dataframe1 = pd.read_csv(  os.path.join(os.path.abspath(".") + '/files/Teilnehmer.csv'),sep = ',',index_col=False) #ruft Teilnehmer.xlsx als dataframe auf
-    print(dataframe1)
     teilnehmer = dataframe1.loc[dataframe1['Teilnehmer Nummer'] == int(teilnehmer_nummer)]#sucht den Teilnehmer mit der entsprechenden Teilnehmern nummer raus
     return teilnehmer
-def reset_export():
+def reset_export(): #löscht alle Files aus export ordner
     print('start reset export')
     x = 0
     for files in os.listdir(os.path.abspath(".") + "/files/export/"):
@@ -521,25 +508,16 @@ def get_export_files(): #returnt alle files in /files/export/
     for file in os.listdir(os.path.abspath(".") + '/files/export/'):
         files.append(file)
     return files
-def get_urkunden_files():
+def get_urkunden_files(): #gibt alle files Zurück die Unter /Files/Urkunden_Zusammenfassung/ gespeichert sind
     files = []
     for file in os.listdir(os.path.abspath(".") + '/files/Urkunden_Zusammenfassung/'):
         files.append(file)
     return files
-def test1():
-    dataframe2 = pd.read_excel(os.path.abspath(".") + '/files/Teilnehmer.xlsx', index_col=False, )
-    tn_anzahl = len(dataframe2)
-    tn_anzahl = tn_anzahl + 1
-    tn_info = get_teilnehmer_infos(tn_anzahl)
-    if tn_info.empty:
-        print('empty')
+
 def get_teilnehmer_list():
     teilnehmer_list = []
     dataframe1 = pd.read_csv('files/teilnehmer.csv', index_col=False)  # liest die Daten in ein pandas dataframe ein
-    print(dataframe1)
     for i,row in dataframe1.iterrows():
-        print(row)
-        print(i)
         tn_number = row.get('Teilnehmer Nummer')
         tn_vorname = row.get('Vorname')
         tn_nachname = row.get('Nachname')
@@ -548,17 +526,12 @@ def get_teilnehmer_list():
         tn_disziplin = row.get('Disziplin')
         teilnehmer = [tn_number, tn_vorname, tn_nachname, tn_Verein, tn_ak, tn_disziplin]
         teilnehmer_list.append(teilnehmer)
-    print(teilnehmer_list)
     return teilnehmer_list
 def main():
     if __name__ == '__main__':
         #loade_ak()
         loade_config()
-        #export
-        #export.export_xlsx(export,"2200m")
         #new_teilnehmer_file()
-        #test()
-
         Web_interface.start_Web_interface()
 if __name__ == '__main__':
     main()
