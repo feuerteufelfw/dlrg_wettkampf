@@ -6,9 +6,11 @@ zeit stoppen website erkennen ob zeit schon läuft und reagieren
 stoppuhr resetten
 #html tabelle mit teilnehmern scrollbar machen
 extra webiste mit angekommenden schwimmern (eventuell direkt mit ergebnis ?)
-auswertung test
-export test
-export von ergebnis tabelle xlsx
+#auswertung test
+#export test
+#export von ergebnis tabelle xlsx
+zeit bei export xlsx in Minuten und Seknden anzeigen (momentan nur in Sekunden)
 export von teilnehmer tabelle xlsx
 test mehrer zugriffe gleichzeitig testen
-
+teste übernahem neuer teilnehmer file
+log datei
