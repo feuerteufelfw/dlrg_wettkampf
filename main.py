@@ -190,10 +190,12 @@ def new_teilnehmer_file():#file mit neuen Teilnehmern wird hinzugefügt
                 writer = csv.writer(csv_datei)
                 geburtsdatum = row.get("Geburtsdatum")
                 ak = cal_ak(geburtsdatum)
-                list = [tn_number,row.get('Vorname'),row.get('Nachname'),row.get('Verein'),ak,geburtsdatum,row.get("400"),row.get("1000"),row.get("2500")]#print(dataframe2)
+                disziplinen = cal_disziplinen(row)
+                list = [tn_number,row.get('Vorname'),row.get('Name'),row.get('Verein'),ak,geburtsdatum,disziplinen]#print(dataframe2)
                 writer.writerow(list)
                 csv_datei.close()
 def cal_ak(geburtsdatum):
+    #berechnet die altersklasse
     print(geburtsdatum)
 
     datum = datetime.datetime.today().date()
@@ -214,6 +216,23 @@ def cal_ak(geburtsdatum):
     else :
         ak = 4
     return ak
+def cal_disziplinen(row):
+    print(row)
+    disziplinen = ""
+    kurz = row.get(400)
+    mittel = row.get(1000)
+    lang = row.get(2500)
+    print(lang)
+    if kurz == "x":
+        disziplinen = "400"
+        print(kurz)
+    if mittel == "x":
+        disziplinen = disziplinen + "_1000"
+        print(mittel)
+    if lang == "x":
+        disziplinen= disziplinen +"_2500"
+        print(lang)
+    return disziplinen
 def new_tn(tn_vorname,tn_nachname,tn_ak,tn_disziplin,verein):#ein neuer Teilnehmer wird der tn liste hinzugefügt
     dataframe1 = pd.read_csv(  os.path.join(os.path.abspath(".") + '/files/Teilnehmer.csv'),sep = ',',index_col=False)
     tn_anzahl = len(dataframe1)
