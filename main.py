@@ -38,9 +38,9 @@ def startup():
     if os.path.isfile(os.path.abspath(".")+"/files/teilnehmer.csv"):
         print("teilnehmer file vorhanden")
     else:
-        csvdatei = open(os.path.abspath(".")+"\\files\\teilnehmer.csv","w")
-        with csvdatei:
-            writer = csv.writer(csvdatei)
+        csvdatei = open
+        with open (os.path.abspath(".")+"\\files\\teilnehmer.csv","w", encoding="iso-8859-1") as csvdatei:
+            writer = csv.writer(csvdatei,)
             writer.writerow(["Teilnehmer Nummer", "Vorname"," Nachname"," Verein", "Altersklasse", "Geburtstag", "Disziplin "])
 
 def loade_config():
@@ -176,7 +176,7 @@ class auswertung():
         return zeit
 def new_teilnehmer_file():#file mit neuen Teilnehmern wird hinzugefügt
     print('start new Teilnehmer')
-    dataframe1 = pd.read_excel('files/Teilnehmer.xlsx', index_col=False) #liest die Daten in ein pandas dataframe ein
+    dataframe1 = pd.read_excel('files/Teilnehmer.xlsx', index_col=False,) #liest die Daten in ein pandas dataframe ein
     teilnehmer_vorhanden = False
     for i, row in dataframe1.iterrows():#geht alle zeilen des neuen file durch,
         # wenn teilnehmer noch nicht in der csv Datei sind werden sie dort hinzugefügt
@@ -483,7 +483,7 @@ class export:
 
 def get_teilnehmer_infos(teilnehmer_nummer): #returnt alles infos zu einer tn nummer
     print('start get teilnehmer infos')
-    dataframe1 = pd.read_csv(  os.path.join(os.path.abspath(".") + '/files/Teilnehmer.csv'),sep = ',',index_col=False) #ruft Teilnehmer.xlsx als dataframe auf
+    dataframe1 = pd.read_csv(  os.path.join(os.path.abspath(".") + '/files/Teilnehmer.csv'),sep = ',',index_col=False, encoding="iso-8859-1") #ruft Teilnehmer.xlsx als dataframe auf
     teilnehmer = dataframe1.loc[dataframe1['Teilnehmer Nummer'] == int(teilnehmer_nummer)]#sucht den Teilnehmer mit der entsprechenden Teilnehmern nummer raus
     return teilnehmer
 def reset_export(): #löscht alle Files aus export ordner
