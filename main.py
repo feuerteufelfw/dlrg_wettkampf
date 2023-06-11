@@ -34,6 +34,15 @@ class speicher:
         self.urkunden_file =''
         self.ak =[]
 speicher_class = speicher()
+def startup():
+    if os.path.isfile(os.path.abspath(".")+"/files/teilnehmer.csv"):
+        print("teilnehmer file vorhanden")
+    else:
+        csvdatei = open(os.path.abspath(".")+"\\files\\teilnehmer.csv","w")
+        with csvdatei:
+            writer = csv.writer(csvdatei)
+            writer.writerow(["Teilnehmer Nummer", "Vorname"," Nachname"," Verein", "Altersklasse", "Geburtstag", "Disziplin "])
+
 def loade_config():
     speicher.temp_pdf_pfad = os.path.abspath(".") + '/files/temp/pdf/'
     speicher.temp_docx_pfad = os.path.abspath(".") + '/files/temp/docx/'
@@ -179,9 +188,32 @@ def new_teilnehmer_file():#file mit neuen Teilnehmern wird hinzugefügt
         if not teilnehmer_vorhanden:#wenn der Teilnehmer neu ist
             with open(os.path.abspath(".") + '/files/teilnehmer.csv','a') as csv_datei:
                 writer = csv.writer(csv_datei)
-                list = [tn_number,row.get('Vorname'),row.get('Nachname'),row.get('Verein'),row.get('Altersklasse'),row.get('Disziplin')]#print(dataframe2)
+                geburtsdatum = row.get("Geburtsdatum")
+                ak = cal_ak(geburtsdatum)
+                list = [tn_number,row.get('Vorname'),row.get('Nachname'),row.get('Verein'),ak,geburtsdatum,row.get("400"),row.get("1000"),row.get("2500")]#print(dataframe2)
                 writer.writerow(list)
                 csv_datei.close()
+def cal_ak(geburtsdatum):
+    print(geburtsdatum)
+
+    datum = datetime.datetime.today().date()
+    alter = datum.year - geburtsdatum.year
+    if datum.month < geburtsdatum.month:
+        alter = alter - 1
+    elif datum.month == geburtsdatum.month:
+        if datum.day < geburtsdatum.day:
+            alter = alter - 1
+    if alter < 13:
+        ak = 0
+    elif alter < 20:
+        ak = 1
+    elif alter < 35:
+        ak = 2
+    elif alter < 50:
+        ak = 3
+    else :
+        ak = 4
+    return ak
 def new_tn(tn_vorname,tn_nachname,tn_ak,tn_disziplin,verein):#ein neuer Teilnehmer wird der tn liste hinzugefügt
     dataframe1 = pd.read_csv(  os.path.join(os.path.abspath(".") + '/files/Teilnehmer.csv'),sep = ',',index_col=False)
     tn_anzahl = len(dataframe1)
@@ -469,6 +501,7 @@ def get_teilnehmer_list():
 def main():
     if __name__ == '__main__':
         #loade_ak()
+        startup()
         loade_config()
         #new_teilnehmer_file()
         Web_interface.start_Web_interface()
