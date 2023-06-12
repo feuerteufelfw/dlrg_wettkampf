@@ -15,9 +15,7 @@ test mehrer zugriffe gleichzeitig testen
 teste übernahem neuer teilnehmer file
 log datei
 teilnehmer hinzufügen home button
-altersklassen brechnen
-altersklassen stichtag setzen
+#altersklassen brechnen
 auswahl der disziplin über kreuz in netsprechender spalte
-teilnahme an mehreren disziplinen ermöglichen
-unterscheidung geschlecht bei auswertung
-Vereinsspalte wenn ohne steht ist kein verein gemeint
+#teilnahme an mehreren disziplinen ermöglichen
+#unterscheidung geschlecht bei auswertung

@@ -41,7 +41,7 @@ def startup():
         csvdatei = open
         with open (os.path.abspath(".")+"\\files\\teilnehmer.csv","w", encoding="iso-8859-1") as csvdatei:
             writer = csv.writer(csvdatei,)
-            writer.writerow(["Teilnehmer Nummer", "Vorname"," Nachname"," Verein", "Altersklasse", "Geburtstag", "Disziplin "])
+            writer.writerow(["Teilnehmer Nummer", "Vorname","Nachname","Verein","Geschlecht", "Altersklasse", "Geburtstag", "Disziplin"])
 
 def loade_config():
     speicher.temp_pdf_pfad = os.path.abspath(".") + '/files/temp/pdf/'
@@ -63,25 +63,34 @@ def loade_config():
     speicher.new_zeiten_file=new_zeiten_file
 class auswertung():
     def auswertung(self):
-        ak = loade_ak()
         print('Auswertung start')
         #auslesen der einzlenen Tielnehmer Daten
         with open(os.path.abspath(".") + '/files/zeiten.csv') as csvdatei:
-            dataframe1 = pd.read_csv(os.path.join(os.path.abspath(".") + '/files/Teilnehmer.csv'), sep=',',index_col=False)
+            dataframe1 = pd.read_csv(os.path.join(os.path.abspath(".") + '/files/Teilnehmer.csv'), sep=',',index_col=False, encoding="iso-8859-1")
             csv_reader_object =csv.reader(csvdatei)
             y = 1
             x = 1
             list_teilnehmer_dict = []
             for row in csv_reader_object:
+                print(75)
                 try:
                     teilnehmer_nummer = row[0]
                     teilnehmer = dataframe1.loc[dataframe1['Teilnehmer Nummer'] == int(teilnehmer_nummer)]
                     teilnehmer_Zeit = row[1]
+                    print(teilnehmer)
                     teilnehmer_Vorname = teilnehmer['Vorname'].values[0]
+                    print(81)
                     teilnehmer_Nachname =  teilnehmer['Nachname'].values[0]
+                    print(83)
                     teilnehmer_Verein = teilnehmer['Verein'].values[0]
+                    print(85)
                     teilnehmer_Altersklasse = teilnehmer['Altersklasse'].values[0]
+                    print(87)
+                    print(teilnehmer["Disziplin"])
                     teilnehmer_Disziplin = teilnehmer['Disziplin'].values[0]
+                    print(90)
+                    teilnehmer_Geschlecht = teilnehmer['Geschlecht'].values[0]
+                    print(92)
                     cust_1 = {
                         'teilnehmer_Vorname': teilnehmer_Vorname,
                         'teilnehmer_Nachname': teilnehmer_Nachname,
@@ -90,12 +99,14 @@ class auswertung():
                         'teilnehmer_Disziplin': teilnehmer_Disziplin,
                         'teilnehmer_Zeit': teilnehmer_Zeit,
                         'teilnehmer_Nummer': teilnehmer_nummer,
+                        'teilnehmer_Geschlecht': teilnehmer_Geschlecht,
                     }
+                    print(103)
                     list_teilnehmer_dict.append(cust_1)
                 except:
                     print("error leere zeile in zeitenfile erkannt")
-            auswertung.ak_und_disziplin_zuordnung(self,list_teilnehmer_dict,ak)
-            auswertung.arry_sort(self,ak)
+            auswertung.ak_und_disziplin_zuordnung(self,list_teilnehmer_dict)
+            auswertung.arry_sort(self)
     def eintrag_vorhanden(self,teilnehmer,name,cursor): #checkt ob teilnehmer bereits in db vorhanden
         sql_command = '''SELECT * FROM ''' +name +''' WHERE Teilnehmernummer = '''+ teilnehmer['teilnehmer_Nummer']
         cursor.execute(sql_command)
@@ -104,24 +115,28 @@ class auswertung():
             return False
         else:
             return True
-    def ak_und_disziplin_zuordnung(self,teilnehmer_list,ak): #speichert teilnehmer in db, tabellenname abhängig von ak und disziplin
+    def ak_und_disziplin_zuordnung(self,teilnehmer_list): #speichert teilnehmer in db, tabellenname abhängig von ak und disziplin
         print('start ak und disziplin zuordnung')
         datenbank = sqlite3.connect("ergebnis.db")
         disziplinen = get_disziplinen()
-        altersklassen = ak
+        altersklassen = loade_ak()
         cursor = datenbank.cursor()
-        for disziplin in disziplinen:
-            for ak in altersklassen:
-                name = ak + '_' + disziplin
-                sql_command ='''SELECT count(name) FROM sqlite_master WHERE type='table' AND name="''' +name+ '''"'''
-                cursor.execute(sql_command)
-                if cursor.fetchone()[0] < 1:
-                    sql_command = """CREATE TABLE """ + name + """(Teilnehmer_Vorname VARCHAR(50), Teilnehmer_Nachname VARCHAR(25), Disziplin VARCHAR(10), Verein VARCHAR(50), Teilnehmernummer VARCHAR(4), Zeit FLOAT,Position VARCHAR(20))"""
+        geschlechter = "w","m"
+        for geschlecht in geschlechter:
+            for disziplin in disziplinen:
+                for ak in altersklassen:
+                    name = geschlecht + '_' + disziplin + '_' + str(ak)
+                    sql_command ='''SELECT count(name) FROM sqlite_master WHERE type='table' AND name="''' +name+ '''"'''
                     cursor.execute(sql_command)
+                    if cursor.fetchone()[0] < 1:
+                        sql_command = """CREATE TABLE """ + str(name) + """ (Teilnehmer_Vorname VARCHAR(50), Teilnehmer_Nachname VARCHAR(25), Disziplin VARCHAR(10), Verein VARCHAR(50), Teilnehmernummer VARCHAR(4), Zeit FLOAT,Position VARCHAR(20));"""
+                        print(sql_command)
+                        cursor.execute(sql_command)
         for teilnehmer in teilnehmer_list:
             teilnehmer_ak = teilnehmer['teilnehmer_Altersklasse']
-            teilnehmer_disziplin = teilnehmer['teilnehmer_Disziplin']
-            name = teilnehmer_ak + '_' + teilnehmer_disziplin
+            teilnehmer_disziplin = teilnehmer['teilnehmer_Disziplin'].split("_")[1]
+            teilnehmer_geschlecht = teilnehmer['teilnehmer_Geschlecht']
+            name = teilnehmer_geschlecht + '_' + teilnehmer_disziplin + '_' + teilnehmer_ak
             if auswertung.eintrag_vorhanden(self,teilnehmer,name,cursor) == False:
                 cursor.execute("""INSERT INTO """ + name + """ VALUES (?,?,?,?,?,?,?)""",(
                     teilnehmer['teilnehmer_Vorname'],
@@ -137,37 +152,39 @@ class auswertung():
         datenbank.commit()
         datenbank.close()
 
-    def arry_sort(self,ak): #sortiert die datenbank um platzierungen zu ermitteln
+    def arry_sort(self): #sortiert die datenbank um platzierungen zu ermitteln
         print("start sort array")
         datenbank = sqlite3.connect("ergebnis.db")
         disziplinen = get_disziplinen()
-        altersklassen = ak
+        altersklassen = loade_ak()
         cursor = datenbank.cursor()
-        for disziplin in disziplinen:
-            for ak in altersklassen:
-                tabelle = ak + '_' + disziplin
-                cursor.execute("SELECT * FROM " + tabelle)
-                teilnehmer_list = cursor.fetchall()
-                cursor.execute("DELETE FROM " + tabelle)
-                datenbank.commit()
-                teilnehmer_list.sort(key=lambda x: x[5])
-                temp = []
-                for i in range(len(teilnehmer_list)):
-                    for x in range(len(teilnehmer_list)):
-                        if x > i:
-                            if teilnehmer_list[i][5] > teilnehmer_list[x][5]:
-                                temp = teilnehmer_list[i]
-                                teilnehmer_list[i] = teilnehmer_list[x]
-                                teilnehmer_list[x] = temp
-                            elif teilnehmer_list[i][5] == teilnehmer_list[x][5]:
-                                print('error gleiche zeit ')
-                l = 1
-                for i in teilnehmer_list:
-                    cursor.execute("""INSERT INTO """ + tabelle + """ VALUES (?,?,?,?,?,?,?)""", (
-                        i[0], i[1], i[2], i[3], i[4], i[5], str(l)
-                    ))
-                    l = l + 1
+        geschlechter = "w","m"
+        for geschlecht in geschlechter:
+            for disziplin in disziplinen:
+                for ak in altersklassen:
+                    tabelle = geschlecht + '_' + disziplin + '_' + str(ak)
+                    cursor.execute("SELECT * FROM " + tabelle)
+                    teilnehmer_list = cursor.fetchall()
+                    cursor.execute("DELETE FROM " + tabelle)
                     datenbank.commit()
+                    teilnehmer_list.sort(key=lambda x: x[5])
+                    temp = []
+                    for i in range(len(teilnehmer_list)):
+                        for x in range(len(teilnehmer_list)):
+                            if x > i:
+                                if teilnehmer_list[i][5] > teilnehmer_list[x][5]:
+                                    temp = teilnehmer_list[i]
+                                    teilnehmer_list[i] = teilnehmer_list[x]
+                                    teilnehmer_list[x] = temp
+                                elif teilnehmer_list[i][5] == teilnehmer_list[x][5]:
+                                    print('error gleiche zeit ')
+                    l = 1
+                    for i in teilnehmer_list:
+                        cursor.execute("""INSERT INTO """ + tabelle + """ VALUES (?,?,?,?,?,?,?)""", (
+                            i[0], i[1], i[2], i[3], i[4], i[5], str(l)
+                        ))
+                        l = l + 1
+                        datenbank.commit()
         datenbank.close()
     def decode_time(self,zeit): # gibt zeit im Format Stunden:Minuten:Sekunden zurück
         minuten, seconds = divmod(float(zeit), 60)
@@ -191,7 +208,7 @@ def new_teilnehmer_file():#file mit neuen Teilnehmern wird hinzugefügt
                 geburtsdatum = row.get("Geburtsdatum")
                 ak = cal_ak(geburtsdatum)
                 disziplinen = cal_disziplinen(row)
-                list = [tn_number,row.get('Vorname'),row.get('Name'),row.get('Verein'),ak,geburtsdatum,disziplinen]#print(dataframe2)
+                list = [tn_number,row.get('Vorname'),row.get('Name'),row.get('Verein'),row.get("Geschlecht"),ak,geburtsdatum,disziplinen]#print(dataframe2)
                 writer.writerow(list)
                 csv_datei.close()
 def cal_ak(geburtsdatum):
@@ -206,15 +223,15 @@ def cal_ak(geburtsdatum):
         if datum.day < geburtsdatum.day:
             alter = alter - 1
     if alter < 13:
-        ak = 0
+        ak = "AK0"
     elif alter < 20:
-        ak = 1
+        ak = "AK1"
     elif alter < 35:
-        ak = 2
+        ak = "AK2"
     elif alter < 50:
-        ak = 3
+        ak = "AK3"
     else :
-        ak = 4
+        ak = "AK4"
     return ak
 def cal_disziplinen(row):
     print(row)
@@ -224,13 +241,13 @@ def cal_disziplinen(row):
     lang = row.get(2500)
     print(lang)
     if kurz == "x":
-        disziplinen = "400"
+        disziplinen = "400m"
         print(kurz)
     if mittel == "x":
-        disziplinen = disziplinen + "_1000"
+        disziplinen = disziplinen + "_1000m"
         print(mittel)
     if lang == "x":
-        disziplinen= disziplinen +"_2500"
+        disziplinen= disziplinen +"_2500m"
         print(lang)
     return disziplinen
 def new_tn(tn_vorname,tn_nachname,tn_ak,tn_disziplin,verein):#ein neuer Teilnehmer wird der tn liste hinzugefügt
@@ -252,10 +269,10 @@ class stoppuhr:
     def __init__(self,disziplin):
         self.diszilpin = disziplin
         self.start_time = time.monotonic()
-    def new_time(self,teilnehmer_nummer,start_time): #fügt eine neue Zeit hinzu
+    def new_time(self,teilnehmer_nummer,start_time,disziplin): #fügt eine neue Zeit hinzu
         delta_time = time.monotonic() - start_time
         #zeit wird in Stunden Minuten Sekunden umgerechnet
-        ergebnis = teilnehmer_nummer,delta_time
+        ergebnis = teilnehmer_nummer,delta_time,disziplin
         #speichert teilnehmernummer und die dazugehörige zeit in csv
         with open( os.path.abspath(".") + '/files/zeiten.csv', 'a',newline='') as csvfile_old_time:
             zeit_save = csv.writer(csvfile_old_time, quoting=csv.QUOTE_ALL)
@@ -304,7 +321,7 @@ def get_disziplinen(): #return list mit allen disziplinen
     return disziplinen_list
 def loade_ak():#list alle vorhandenen Altersklassen aus und returnt diese als list
 
-    dataframe1 = pd.read_csv(os.path.join(os.path.abspath(".") + '/files/teilnehmer.csv'), index_col=False)
+    dataframe1 = pd.read_csv(os.path.join(os.path.abspath(".") + '/files/teilnehmer.csv'), index_col=False, encoding="iso-8859-1")
     df_altersklassen = dataframe1['Altersklasse']
     altersklassen = []
     for ak in df_altersklassen:

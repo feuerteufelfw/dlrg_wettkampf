@@ -52,7 +52,9 @@ def index():
             disziplinen_list = main.get_disziplinen()
             return  flask.render_template('home.html')
         elif flask.request.form.get('zeitmessung_start') == 'zeitmessung start':
-            return flask.render_template('zeit_stoppen.html',display_zeit_stoppen="none",displya_startup="True")
+            disziplinen = main.get_disziplinen()
+            print(disziplinen)
+            return flask.render_template('zeit_stoppen.html',display_zeit_stoppen="none",display_startup="True",disziplinen = disziplinen)
             print('config uploade')
         elif flask.request.form.get('export') =='export':
             print("export click")
@@ -125,16 +127,20 @@ def zeit_messung():
             return flask.render_template('zeit_stoppen.html', prediction_text=str(temp_class.temp_teilnehmer_nummer),display_startup="none",display_zeit_stoppem="True")
         elif flask.request.form.get('enter_button') == 'enter':
             print('enter button push')
-            teilnehmer_zeit = main.stoppuhr.new_time(main.stoppuhr,temp_class.temp_teilnehmer_nummer,temp_class.start_time)
+            teilnehmer_zeit = main.stoppuhr.new_time(main.stoppuhr,temp_class.temp_teilnehmer_nummer,temp_class.start_time,temp_class.disziplin)
             teilenhmer_nummer = temp_class.temp_teilnehmer_nummer
             teilnehmer = main.get_teilnehmer_infos(teilenhmer_nummer)
             teilnehmer_zeit = main.auswertung.decode_time(main.auswertung,teilnehmer_zeit)
+            print(teilnehmer['Nachname'])
             teilnehmer_name =  teilnehmer['Vorname'].values[0] + ' ' +  teilnehmer['Nachname'].values[0]
             teilnehmer = dict( nummer = teilenhmer_nummer,name = teilnehmer_name, zeit = teilnehmer_zeit)
             temp_class.last_teilnehmer_list.append(teilnehmer)
             temp_class.temp_teilnehmer_nummer = ''
             return flask.render_template('zeit_stoppen.html', prediction_text=' ',display_startup="none",display_zeit_stoppen="True",teilnehmer_list = temp_class.last_teilnehmer_list)
         elif flask.request.form.get('start_button') == 'start':
+            disziplin = flask.request.form.get('disziplinselect')
+            print(disziplin)
+            temp_class.disziplin = disziplin
             temp_class.start_time = time.monotonic()
             print('hi')
             return flask.render_template('zeit_stoppen.html',display_zeit_stoppen="True",display_startup="none")

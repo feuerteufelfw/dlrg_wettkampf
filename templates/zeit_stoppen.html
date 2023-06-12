@@ -8,8 +8,13 @@
  <body >
 	<div class="startup" style="display:{{display_startup}}">
 		<form method="post" action="/zeit_messung">
+			<select multiple id="disziplinselect" name = "disziplinselect" style="width: 50%; height:25vh">
+				{% for disziplin in disziplinen %}
+				<option value = {{disziplin}}>{{disziplin}}</option>
+				{% endfor %}
+			</select>
 			<input type="submit" value="start" name="start_button"  style="width: 50%; height:50vh; margin:25%"/>
-        </select>
+
 		</form>
 	</div>		
     <div class="calbottom" style="display:{{ display_zeit_stoppen }}">
