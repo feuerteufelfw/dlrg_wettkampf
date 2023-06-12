@@ -344,13 +344,15 @@ class export:
         datenbank = sqlite3.connect("ergebnis.db")
         cursor = datenbank.cursor()
         disziplinen = get_disziplinen()
-        for disziplin in disziplinen:
-            for akl in ak:
-                tabelle = akl + '_' + disziplin
-                cursor.execute("SELECT * FROM " + tabelle)
-                teilnehmer_list = cursor.fetchall()
-                if len(teilnehmer_list) > 0:
-                    self.write_to_docx(self,teilnehmer_list, disziplin, akl)
+        Geschlechter = "w","m"
+        for geschlecht in Geschlechter:
+            for disziplin in disziplinen:
+                for akl in ak:
+                    tabelle = geschlecht + '_' + disziplin + '_' + akl
+                    cursor.execute("SELECT * FROM " + tabelle)
+                    teilnehmer_list = cursor.fetchall()
+                    if len(teilnehmer_list) > 0:
+                        self.write_to_docx(self,teilnehmer_list, disziplin, akl)
         print('schlafe 5 s')
         time.sleep(5)
         for f in os.listdir(os.path.abspath(".") + '/files/temp/docx/'):
@@ -389,7 +391,7 @@ class export:
                     'datum': datum,
                     'teilnehmer_platz': str(i[6])}
                 if x == 10:
-                    urkunden_file =  os.path.abspath(".") + '/files/Urkunden_Zusammenfassung/' + list_teilnehmer[0][
+                    urkunden_file =  os.path.abspath(".") + '/files/Urkunden_Zusammenfassung/' + disziplin[
                         2] + '.docx'
                     with mailmerge.MailMerge(urkunden_file) as Urkunden_dokument:
                         Urkunden_dokument.merge_templates(
@@ -400,7 +402,7 @@ class export:
                             y = y + 1
                         Urkunden_dokument.write(os.path.abspath(".") + '/files/temp/docx/dokument' + str(y) + '.docx')
                         Urkunden_dokument.close()
-            urkunden_file =os.path.abspath(".") + '/files/Urkunden_Zusammenfassung/' + list_teilnehmer[0][2] + '.docx'
+            urkunden_file =os.path.abspath(".") + '/files/Urkunden_Zusammenfassung/' + disziplin + '.docx'
             with mailmerge.MailMerge(urkunden_file) as Urkunden_dokument:
                 if x == 10:
                     Urkunden_dokument.merge_templates(
@@ -487,16 +489,18 @@ class export:
         db = sqlite3.connect("ergebnis.db")
         cursor = db.cursor()
         altersklassen = loade_ak()
-        for ak in altersklassen:
-            tabelle = ak + '_' + disziplin
-            cursor.execute("SELECT * FROM " + tabelle)
-            columns = [desc[0] for desc in cursor.description]
-            data = cursor.fetchall()
-            if len(data) > 0:
-                df = pd.DataFrame(list(data), columns=columns)
-                writer = pd.ExcelWriter( os.path.join(os.path.abspath(".") + '/files/export/export' + tabelle + '.xlsx'))
-                df.to_excel(writer, sheet_name=tabelle)
-                writer.save()
+        geschlechter = "w","m"
+        for geschlecht in geschlechter:
+            for ak in altersklassen:
+                tabelle = geschlecht  + '_' + disziplin + "_" + ak
+                cursor.execute("SELECT * FROM " + tabelle)
+                columns = [desc[0] for desc in cursor.description]
+                data = cursor.fetchall()
+                if len(data) > 0:
+                    df = pd.DataFrame(list(data), columns=columns)
+                    writer = pd.ExcelWriter( os.path.join(os.path.abspath(".") + '/files/export/export' + tabelle + '.xlsx'))
+                    df.to_excel(writer, sheet_name=tabelle)
+                    writer.save()
 
 def get_teilnehmer_infos(teilnehmer_nummer): #returnt alles infos zu einer tn nummer
     print('start get teilnehmer infos')

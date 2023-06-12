@@ -16,6 +16,6 @@ teste übernahem neuer teilnehmer file
 log datei
 teilnehmer hinzufügen home button
 #altersklassen brechnen
-auswahl der disziplin über kreuz in netsprechender spalte
+auswahl der disziplin über kreuz in entsprechender spalte
 #teilnahme an mehreren disziplinen ermöglichen
 #unterscheidung geschlecht bei auswertung
