@@ -1,7 +1,6 @@
 #import Zeug
 import os
 import pythoncom
-#import win32com
 from PyPDF2 import PdfMerger    #zusammenfügen von pdf dateien
 import mailmerge #um auf die Textfelder in word zuzugreifen
 import pandas as pd
@@ -198,19 +197,23 @@ def new_teilnehmer_file():#file mit neuen Teilnehmern wird hinzugefügt
     for i, row in dataframe1.iterrows():#geht alle zeilen des neuen file durch,
         # wenn teilnehmer noch nicht in der csv Datei sind werden sie dort hinzugefügt
         tn_number = row.get('Teilnehmer Nummer')
-        if get_teilnehmer_infos(tn_number).empty:
-            teilnehmer_vorhanden = False
-        else:
-            teilnehmer_vorhanden = True
-        if not teilnehmer_vorhanden:#wenn der Teilnehmer neu ist
-            with open(os.path.abspath(".") + '/files/teilnehmer.csv','a') as csv_datei:
-                writer = csv.writer(csv_datei)
-                geburtsdatum = row.get("Geburtsdatum")
-                ak = cal_ak(geburtsdatum)
-                disziplinen = cal_disziplinen(row)
-                list = [tn_number,row.get('Vorname'),row.get('Name'),row.get('Verein'),row.get("Geschlecht"),ak,geburtsdatum,disziplinen]#print(dataframe2)
-                writer.writerow(list)
-                csv_datei.close()
+        tn_name = row.get('Name')
+        print(tn_number)
+        if tn_number == tn_number and tn_name == tn_name:
+            if get_teilnehmer_infos(tn_number).empty:
+                teilnehmer_vorhanden = False
+            else:
+                teilnehmer_vorhanden = True
+            if not teilnehmer_vorhanden:#wenn der Teilnehmer neu ist
+                with open(os.path.abspath(".") + '/files/teilnehmer.csv','a') as csv_datei:
+                    writer = csv.writer(csv_datei)
+                    geburtsdatum = row.get("Geburtsdatum")
+                    ak = cal_ak(geburtsdatum)
+                    geburtsdatum = str(geburtsdatum.day) + "." + str(geburtsdatum.month) + "." + str(geburtsdatum.year)
+                    disziplinen = cal_disziplinen(row)
+                    list = [int(tn_number),row.get('Vorname'),row.get('Name'),row.get('Verein'),row.get("Geschlecht"),ak,geburtsdatum,disziplinen]#print(dataframe2)
+                    writer.writerow(list)
+                    csv_datei.close()
 def cal_ak(geburtsdatum):
     #berechnet die altersklasse
     print(geburtsdatum)
@@ -240,13 +243,13 @@ def cal_disziplinen(row):
     mittel = row.get(1000)
     lang = row.get(2500)
     print(lang)
-    if kurz == "x":
+    if kurz == 1.0:
         disziplinen = "400m"
         print(kurz)
-    if mittel == "x":
+    if mittel == 1.0:
         disziplinen = disziplinen + "_1000m"
         print(mittel)
-    if lang == "x":
+    if lang == 1.0:
         disziplinen= disziplinen +"_2500m"
         print(lang)
     return disziplinen
@@ -369,6 +372,8 @@ class export:
             print("buffer")
     def write_to_docx(self,list_teilnehmer, disziplin, ak):#überträgt daten in textfieldes des docx dokumentes
         print('write do dox: ' + disziplin)
+        ak = ak.split("K")[1]
+        print(ak)
         x = 1
         y = 1
         if len(list_teilnehmer) > 0:
@@ -490,6 +495,7 @@ class export:
         cursor = db.cursor()
         altersklassen = loade_ak()
         geschlechter = "w","m"
+        ergebnisse = []
         for geschlecht in geschlechter:
             for ak in altersklassen:
                 tabelle = geschlecht  + '_' + disziplin + "_" + ak
@@ -527,15 +533,21 @@ def get_urkunden_files(): #gibt alle files Zurück die Unter /Files/Urkunden_Zus
 
 def get_teilnehmer_list():
     teilnehmer_list = []
-    dataframe1 = pd.read_csv('files/teilnehmer.csv', index_col=False)  # liest die Daten in ein pandas dataframe ein
+    dataframe1 = pd.read_csv('files/teilnehmer.csv', index_col=False,  encoding="iso-8859-1")  # liest die Daten in ein pandas dataframe ein
     for i,row in dataframe1.iterrows():
         tn_number = row.get('Teilnehmer Nummer')
         tn_vorname = row.get('Vorname')
         tn_nachname = row.get('Nachname')
         tn_Verein = row.get('Verein')
         tn_ak = row.get("Altersklasse")
-        tn_disziplin = row.get('Disziplin')
-        teilnehmer = [tn_number, tn_vorname, tn_nachname, tn_Verein, tn_ak, tn_disziplin]
+        tn_geschlecht = row.get('Geschlecht')
+        tn_disziplin = row.get('Disziplin').split('_')
+        tn_geburtstag = row.get('Geburtstag')
+        tn_disziplinen = ""
+        for disziplin in tn_disziplin :
+            tn_disziplinen = tn_disziplinen + " " +  disziplin
+
+        teilnehmer = [tn_number, tn_vorname, tn_nachname, tn_Verein, tn_ak, tn_disziplinen, tn_geschlecht, tn_geburtstag]
         teilnehmer_list.append(teilnehmer)
     return teilnehmer_list
 def main():
