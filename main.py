@@ -197,23 +197,42 @@ def new_teilnehmer_file():#file mit neuen Teilnehmern wird hinzugefügt
     for i, row in dataframe1.iterrows():#geht alle zeilen des neuen file durch,
         # wenn teilnehmer noch nicht in der csv Datei sind werden sie dort hinzugefügt
         tn_number = row.get('Teilnehmer Nummer')
-        tn_name = row.get('Name')
-        print(tn_number)
-        if tn_number == tn_number and tn_name == tn_name:
-            if get_teilnehmer_infos(tn_number).empty:
-                teilnehmer_vorhanden = False
-            else:
-                teilnehmer_vorhanden = True
-            if not teilnehmer_vorhanden:#wenn der Teilnehmer neu ist
-                with open(os.path.abspath(".") + '/files/teilnehmer.csv','a') as csv_datei:
-                    writer = csv.writer(csv_datei)
-                    geburtsdatum = row.get("Geburtsdatum")
-                    ak = cal_ak(geburtsdatum)
-                    geburtsdatum = str(geburtsdatum.day) + "." + str(geburtsdatum.month) + "." + str(geburtsdatum.year)
-                    disziplinen = cal_disziplinen(row)
-                    list = [int(tn_number),row.get('Vorname'),row.get('Name'),row.get('Verein'),row.get("Geschlecht"),ak,geburtsdatum,disziplinen]#print(dataframe2)
-                    writer.writerow(list)
-                    csv_datei.close()
+        tn_nr = row.get('Nr.')
+        #print(tn_nr)
+        if tn_nr is not None and tn_nr == tn_nr:
+
+            geburtsdatum = row.get("Geburtsdatum")
+            ak = cal_ak(geburtsdatum)
+            geburtsdatum = str(geburtsdatum.day) + "." + str(geburtsdatum.month) + "." + str(geburtsdatum.year)
+            disziplinen = cal_disziplinen(row)
+            if row.get(400) is not None and row.get(400) == row.get(400):
+                print("400m")
+                if get_teilnehmer_infos(row.get(400)).empty:
+                    with open(os.path.abspath(".") + '/files/teilnehmer.csv', 'a') as csv_datei:
+                        writer = csv.writer(csv_datei)
+                        print(row.get(400))
+                        list = [int(row.get(400)),row.get('Vorname'),row.get('Name'),row.get('Verein'),row.get("Geschlecht"),ak,geburtsdatum,disziplinen]#print(dataframe2)
+                        writer.writerow(list)
+                        csv_datei.close()
+            if row.get(1000) is not None and row.get(1000) == row.get(1000):
+                print("1000m")
+                if get_teilnehmer_infos(row.get(1000)).empty:
+                    with open(os.path.abspath(".") + '/files/teilnehmer.csv', 'a') as csv_datei:
+                        writer = csv.writer(csv_datei)
+                        print(row.get(1000))
+                        list = [int(row.get(1000)), row.get('Vorname'), row.get('Name'), row.get('Verein'),
+                        row.get("Geschlecht"), ak, geburtsdatum, disziplinen]  # print(dataframe2)
+                        writer.writerow(list)
+                        csv_datei.close()
+            if row.get(2500) is not None and row.get(2500) == row.get(2500):
+                print("2500m")
+                if get_teilnehmer_infos(row.get(2500)).empty:
+                    with open(os.path.abspath(".") + '/files/teilnehmer.csv', 'a') as csv_datei:
+                        writer = csv.writer(csv_datei)
+                        print(row.get(2500))
+                        list = [int(row.get(2500)), row.get('Vorname'), row.get('Name'), row.get('Verein'),row.get("Geschlecht"), ak, geburtsdatum, disziplinen]  # print(dataframe2)
+                        writer.writerow(list)
+                        csv_datei.close()
 def cal_ak(geburtsdatum):
     #berechnet die altersklasse
     print(geburtsdatum)
@@ -237,11 +256,11 @@ def cal_ak(geburtsdatum):
         ak = "AK4"
     return ak
 def cal_disziplinen(row):
-    print(row)
+    #print(row)
     disziplinen = ""
-    kurz = row.get(400)
-    mittel = row.get(1000)
-    lang = row.get(2500)
+    kurz = row.get("400m")
+    mittel = row.get("1000m")
+    lang = row.get("2500m")
     print(lang)
     if kurz == 1.0:
         disziplinen = "400m"
