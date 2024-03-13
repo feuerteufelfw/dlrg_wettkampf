@@ -291,10 +291,13 @@ class stoppuhr:
     def __init__(self,disziplin):
         self.diszilpin = disziplin
         self.start_time = time.monotonic()
-    def new_time(self,teilnehmer_nummer,start_time,disziplin): #fügt eine neue Zeit hinzu
+    def new_time(self,start_time,disziplin,teilnehmer_nummer=0): #fügt eine neue Zeit hinzu
         delta_time = time.monotonic() - start_time
         #zeit wird in Stunden Minuten Sekunden umgerechnet
-        ergebnis = teilnehmer_nummer,delta_time,disziplin
+        if teilnehmer_nummer == 0:
+            ergebnis = delta_time,disziplin
+        else:
+            ergebnis = teilnehmer_nummer,delta_time,disziplin
         #speichert teilnehmernummer und die dazugehörige zeit in csv
         with open( os.path.abspath(".") + '/files/zeiten.csv', 'a',newline='') as csvfile_old_time:
             zeit_save = csv.writer(csvfile_old_time, quoting=csv.QUOTE_ALL)

@@ -10,15 +10,23 @@ div.num_bt > input{
     width: 33%;
     height: 10vh;
 }
-.data, th, td {
- border: 1px solid black;
- border-collapse: collapse;
- padding: 4px;
+
+thead{
+    position: sticky;
 }
-.container {
- height: 300px;
- width: 60%;
- overflow-y: scroll;
+div.container{
+    width: 60%;
+    height: 100vh;
+    overflow-y: scroll;
+}
+tbody{
+    border: 1px solid;
+    height: 50vh;
+    overflow-y: scroll;
+}
+.data, th, td{
+    border-collapse: collapse;
+    border: 1px solid black;
 }
 th.vname{
     width: 25%;

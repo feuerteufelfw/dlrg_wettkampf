@@ -54,7 +54,7 @@ def index():
         elif flask.request.form.get('zeitmessung_start') == 'zeitmessung start':
             disziplinen = main.get_disziplinen()
             print(disziplinen)
-            return flask.render_template('zeit_stoppen.html',display_zeit_stoppen="none",display_startup="True",disziplinen = disziplinen)
+            return flask.render_template('zeit_stoppen.html',display_zeit_stoppen_tn="none",display_startup="True",disziplinen = disziplinen)
             print('config uploade')
         elif flask.request.form.get('export') =='export':
             print("export click")
@@ -124,10 +124,10 @@ def zeit_messung():
         if flask.request.form.get('back_button') == 'back':
             Web_interface.temp_class.temp_teilnehmer_nummer = temp_class.temp_teilnehmer_nummer[0:len(temp_class.temp_teilnehmer_nummer) - 1]
             print('back button push')
-            return flask.render_template('zeit_stoppen.html', prediction_text=str(temp_class.temp_teilnehmer_nummer),display_startup="none",display_zeit_stoppem="True")
+            return flask.render_template('zeit_stoppen.html', prediction_text=str(temp_class.temp_teilnehmer_nummer),display_startup="none",display_zeit_stoppem_tn="True")
         elif flask.request.form.get('enter_button') == 'enter':
             print('enter button push')
-            teilnehmer_zeit = main.stoppuhr.new_time(main.stoppuhr,temp_class.temp_teilnehmer_nummer,temp_class.start_time,temp_class.disziplin)
+            teilnehmer_zeit = main.stoppuhr.new_time(main.stoppuhr,temp_class.start_time,temp_class.disziplin,temp_class.temp_teilnehmer_nummer)
             teilenhmer_nummer = temp_class.temp_teilnehmer_nummer
             teilnehmer = main.get_teilnehmer_infos(teilenhmer_nummer)
             teilnehmer_zeit = main.auswertung.decode_time(main.auswertung,teilnehmer_zeit)
@@ -136,18 +136,28 @@ def zeit_messung():
             teilnehmer = dict( nummer = teilenhmer_nummer,name = teilnehmer_name, zeit = teilnehmer_zeit)
             temp_class.last_teilnehmer_list.append(teilnehmer)
             temp_class.temp_teilnehmer_nummer = ''
-            return flask.render_template('zeit_stoppen.html', prediction_text=' ',display_startup="none",display_zeit_stoppen="True",teilnehmer_list = temp_class.last_teilnehmer_list)
+            return flask.render_template('zeit_stoppen.html', prediction_text=' ',display_startup="none",display_zeit_stoppen_tn="True",display_zeit_stoppen_ohne_tn = "none",teilnehmer_list = temp_class.last_teilnehmer_list)
+        elif flask.request.form.get('stopp_button') == 'stoppen':
+            print("stopp button push")
+            teilnehmer_zeit = main.stoppuhr.new_time(main.stoppuhr, temp_class.start_time, temp_class.disziplin)
+            temp_class.zeiten_list.append(teilnehmer_zeit)
+            return flask.render_template('zeit_stoppen.html', prediction_text=' ', display_startup="none", display_zeit_stoppen_ohne_tn="True",display_zeit_stoppen_tn="none",zeiten_list=temp_class.zeiten_list)
         elif flask.request.form.get('start_button') == 'start':
             disziplin = flask.request.form.get('disziplinselect')
+            mit_tn = flask.request.form.get("mit_startnr")
+            print(mit_tn)
             print(disziplin)
             temp_class.disziplin = disziplin
             temp_class.start_time = time.monotonic()
             print('hi')
-            return flask.render_template('zeit_stoppen.html',display_zeit_stoppen="True",display_startup="none")
+            if mit_tn == "true":
+                return flask.render_template('zeit_stoppen.html',display_zeit_stoppen_tn="True",display_startup="none",display_zeit_stoppen_ohne_tn ="none")
+            else:
+                return flask.render_template('zeit_stoppen.html',display_zeit_stoppen_tn="none",display_startup= "none",display_zeit_stoppen_ohne_tn ="True")
         elif flask.request.form.get('Zahlen_button'):
             temp_class.temp_teilnehmer_nummer  = temp_class.temp_teilnehmer_nummer + str(flask.request.form.get('Zahlen_button'))
             print(flask.request.form.get('Zahlen_button'))
-            return flask.render_template('zeit_stoppen.html', prediction_text=str(temp_class.temp_teilnehmer_nummer ),display_zeit_stoppen ="True",display_startup='none',teilnehmer_list = temp_class.last_teilnehmer_list)
+            return flask.render_template('zeit_stoppen.html', prediction_text=str(temp_class.temp_teilnehmer_nummer ),display_zeit_stoppen_tn ="True",display_startup='none',teilnehmer_list = temp_class.last_teilnehmer_list)
         elif flask.request.form.get("home_button") == "home":
             disziplinen_list = main.get_disziplinen()
             return flask.render_template("home.html")
@@ -229,6 +239,7 @@ class speicher:
         self.start_time = ''
         self.disziplin = ''
         self.teilnehmer_list = []
+        self.zeiten_list=[]
 
 uhr = flask.Flask(__name__, static_folder='static')
 
