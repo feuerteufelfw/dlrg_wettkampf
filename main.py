@@ -572,8 +572,40 @@ def get_teilnehmer_list():
         teilnehmer = [tn_number, tn_vorname, tn_nachname, tn_Verein, tn_ak, tn_disziplinen, tn_geschlecht, tn_geburtstag]
         teilnehmer_list.append(teilnehmer)
     return teilnehmer_list
+def ad_teilnehmer_nummer(index,tn,disziplin):
+    datenbank = sqlite3.connect("wettkampf.db")
+    cursor = datenbank.cursor()
+    tabelle = disziplin + "_zeiten"
+    sql_befehl = "Update " +  tabelle + "SET tn = " + tn +" wehre index = " +  index + ";"
+    cursor.execute(sql_befehl)
+    cursor.close()
+    datenbank.commit()
+    datenbank.close()
+def create_zeiten_tabelle(disziplin):
+    datenbank = sqlite3.connect("wettkampf.db")
+    cursor = datenbank.cursor()
+    sql_befehl = "Create Table " + disziplin + "_zeiten" + """(
+    id int NOT NULL AUTO_INCREMENT,
+    zeiten integer,
+    tn integer);
+    """
+    cursor.execute(sql_befehl)
+    cursor.close()
+    datenbank.commit()
+    datenbank.close()
+
+def test_tabelle_vorhanden(name,datenbank):
+    db = sqlite3.connect(datenbank)
+    cursor = db.cursor()
+    sql_command ='''SELECT * FROM sqlite_master WHERE name="''' +name+ '''";'''
+    print(sql_command)
+    cursor.execute(sql_command)
+    temp = cursor.fetchone()
+    print(temp)
 def main():
     if __name__ == '__main__':
+
+        test_tabelle_vorhanden("Teilnehmer","wettkampf.db")
         #loade_ak()
         startup()
         loade_config()

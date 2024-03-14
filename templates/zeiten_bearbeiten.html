@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Zeiten bearbeiten </title>
+</head>
+<body>
+<div class="zeiten_bearbeiten">
+  <form method="post" action="/zeit_bearbeiten">
+	<input type ="text" name = "tn_nummer" value=""/>
+	<input list="disziplin_list" id="disziplin" name="disziplin"/>
+	<datalist id = "disziplin_list">
+		{% for diszipline in disziplin_list %}
+			<option value={{diszipline}}> {{diszipline}}</option>
+		{% endfor %}
+	</datalist>
+	<input type = "submit" name="enter" value="enter" />
+  </form>
+</div>
+
+</body>
+</html>

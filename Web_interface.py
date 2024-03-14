@@ -47,7 +47,11 @@ def index():
             print('start Auswertung click')
             main.auswertung.auswertung(main.auswertung)
             return flask.render_template('home.html')
-
+        elif flask.request.form.get("tn_hinzufügen") == "tn_hinzufügen":
+            print("tn hinzufügen click")
+            disziplin_liste = main.get_disziplinen()
+            print(disziplin_liste)
+            return flask.render_template('zeiten_bearbeiten.html', disziplin_list= disziplin_liste)
         elif flask.request.form.get('home') == 'home':
             disziplinen_list = main.get_disziplinen()
             return  flask.render_template('home.html')
@@ -73,6 +77,11 @@ def index():
         disziplinen_list = main.get_disziplinen()
         return flask.render_template('home.html')
 #_____________________________________________________________uploade Time
+@app.route("/zeiten_bearbeiten", methods=['POST', 'GET'])
+def zeiten_bearbeiten():
+    disziplinen_list = main.get_disziplinen()
+
+    return flask.render_template("zeiten_bearbeiten", disziplinen_list = disziplinen_list)
 @app.route('/upload_time',methods=[ 'POST','GET'])
 def upload_time():
     print('uploade time')
