@@ -572,40 +572,57 @@ def get_teilnehmer_list():
         teilnehmer = [tn_number, tn_vorname, tn_nachname, tn_Verein, tn_ak, tn_disziplinen, tn_geschlecht, tn_geburtstag]
         teilnehmer_list.append(teilnehmer)
     return teilnehmer_list
-def ad_teilnehmer_nummer(index,tn,disziplin):
-    datenbank = sqlite3.connect("wettkampf.db")
-    cursor = datenbank.cursor()
-    tabelle = disziplin + "_zeiten"
-    sql_befehl = "Update " +  tabelle + "SET tn = " + tn +" wehre index = " +  index + ";"
-    cursor.execute(sql_befehl)
-    cursor.close()
-    datenbank.commit()
-    datenbank.close()
-def create_zeiten_tabelle(disziplin):
-    datenbank = sqlite3.connect("wettkampf.db")
-    cursor = datenbank.cursor()
-    sql_befehl = "Create Table " + disziplin + "_zeiten" + """(
-    id int NOT NULL AUTO_INCREMENT,
-    zeiten integer,
-    tn integer);
-    """
-    cursor.execute(sql_befehl)
-    cursor.close()
-    datenbank.commit()
-    datenbank.close()
+class datenbank:
+    def get_cursor(self,db):
+        datenbank = sqlite3.connect(db)
+        cursor = datenbank.cursor()
+        return datenbank,cursor
+    def close_db(self,db,cursor):
+        cursor.close()
+        db.commit()
+        db.close()
 
-def test_tabelle_vorhanden(name,datenbank) :
-    try:
-        db = sqlite3.connect(datenbank)
-        cursor = db.cursor()
-        sql_command ='''Exist SELECT * FROM sqlite_master WHERE name="''' +name+ '''";'''
-        print(sql_command)
+    def ad_teilnehmer_nummer(self,index,tn,disziplin):
+        datenbank = sqlite3.connect("wettkampf.db")
+        cursor = datenbank.cursor()
+        tabelle = disziplin + "_zeiten"
+        sql_befehl = "Update " +  tabelle + "SET tn = " + tn +" wehre index = " +  index + ";"
+        cursor.execute(sql_befehl)
+        cursor.close()
+        datenbank.commit()
+        datenbank.close()
+    def create_zeiten_tabelle(self, disziplin):
+        datenbank = sqlite3.connect("wettkampf.db")
+        cursor = datenbank.cursor()
+        sql_befehl = "Create Table " + disziplin + "_zeiten" + """(
+        id int NOT NULL AUTO_INCREMENT,
+        zeiten integer,
+        tn integer);
+        """
+        cursor.execute(sql_befehl)
+        cursor.close()
+        datenbank.commit()
+        datenbank.close()
+
+    def test_tabelle_vorhanden(self,name,datenbank) :
+        try:
+            db = sqlite3.connect(datenbank)
+            cursor = db.cursor()
+            sql_command ='''Exist SELECT * FROM sqlite_master WHERE name="''' +name+ '''";'''
+            print(sql_command)
+            cursor.execute(sql_command)
+            temp = cursor.fetchone()
+            print(temp)
+            return True
+        except:
+            return False
+    def erstelle_tabelle(self,db,cursor,tabel_name,spalten):
+        sql_command ="Create Table " + tabel_name + "(" + spalten +");"
         cursor.execute(sql_command)
-        temp = cursor.fetchone()
-        print(temp)
-        return True
-    except:
-        return False
+        db.commit()
+
+
+
 def main():
     if __name__ == '__main__':
 
