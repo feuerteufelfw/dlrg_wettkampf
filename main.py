@@ -594,14 +594,18 @@ def create_zeiten_tabelle(disziplin):
     datenbank.commit()
     datenbank.close()
 
-def test_tabelle_vorhanden(name,datenbank):
-    db = sqlite3.connect(datenbank)
-    cursor = db.cursor()
-    sql_command ='''SELECT * FROM sqlite_master WHERE name="''' +name+ '''";'''
-    print(sql_command)
-    cursor.execute(sql_command)
-    temp = cursor.fetchone()
-    print(temp)
+def test_tabelle_vorhanden(name,datenbank) :
+    try:
+        db = sqlite3.connect(datenbank)
+        cursor = db.cursor()
+        sql_command ='''Exist SELECT * FROM sqlite_master WHERE name="''' +name+ '''";'''
+        print(sql_command)
+        cursor.execute(sql_command)
+        temp = cursor.fetchone()
+        print(temp)
+        return True
+    except:
+        return False
 def main():
     if __name__ == '__main__':
 
