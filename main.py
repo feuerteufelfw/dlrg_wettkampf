@@ -626,27 +626,42 @@ class datenbank:
             return True
         except:
             return False
-    def get_disziplin_nr(self,Name_disziplin):
+    def get_disziplin_nr(self,Name_disziplin): #gibt die der disziplin zugeordneten NR zurück
         sql_command = "SELECT Disziplin_NR From Disziplin Where Disziplin = '%s';" %(Name_disziplin)
         print(sql_command)
         self.cursor.execute(sql_command)
         return self.cursor.fetchone()
-    def insert_new_disziplin(self,Disziplin,Urkunde):
+    def insert_new_disziplin(self,Disziplin,Urkunde,): #erstellt neuen db Eintrag disziplin, Disziplin ist der namen und Urkunde der Urkundenfile
         sql_command = "INSERT INTO Disziplin (Urkunde,Disziplin) VALUES(?,?);"
-        self.cursor.execute(sql_command,(Urkunde,Disziplin))
+        self.cursor.execute(sql_command, (Urkunde, Disziplin))
         self.db.commit()
 
+    def insert_into_schwimmt(self,tn,disp_nr,*args): #fügt zurdnung tn und startnummer hinzu
+        if args == None: #falls keine startnummer angegeben ist
+            sql_command = "INSERT INTO schwimmt (TN,Disziplin_NR) VALUES(?,?);"
+            self.cursor.execute(sql_command,(tn,disp_nr))
+        else: #falls dem Teilnehmer bereits händisch eine startnummer zugeordnent wurde
+            sql_command = "INSERT INTO schwimmt (TN,Disziplin_NR,Start_Nr ) VALUES(?,?,?);"
+            print(args[0])
+            self.cursor.execute(sql_command,(tn,disp_nr,args[0]))
+        self.db.commit()
+    def get_start_nr(self,tn,disp_nr): #gibt die Startnummer des TN für die Disziplin zurück
+        sql_command =" SELECT Start_Nr FROM schwimmt WHERE Tn = '%s' & Disziplin_Nr = '%s';" %(tn,disp_nr)
+        self.cursor.execute(sql_command)
+        return self.cursor.fetchall()
     def erstelle_tabelle(self,tabel_name,spalten):
         sql_command ="Create Table " + tabel_name + "(" + spalten +");"
         self.cursor.execute(sql_command)
         self.db.commit()
-
+    def insert_into_zeiten(self,zeit):
+        sql_command = "IN"
 
 
 def main():
     if __name__ == '__main__':
         db = datenbank("wettkampf.db")
         #loade_ak()
+        db.insert_into_schwimmt(2,1,12)
         startup()
         loade_config()
         #new_teilnehmer_file()
