@@ -1,0 +1,4 @@
+DB:
+ schwimmt:
+    Die tabelle schwimmt dient der Zuordnung einer Startnummer zu einem spezifischen
+    Teilnehmer

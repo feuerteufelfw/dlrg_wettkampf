@@ -602,18 +602,6 @@ class datenbank:
             print("hi")
             #sortiere nach zeit wenn ak = ak in tabelle
 
-    def create_zeiten_tabelle(self, disziplin):
-        datenbank = sqlite3.connect("wettkampf.db")
-        cursor = datenbank.cursor()
-        sql_befehl = "Create Table " + disziplin + "_zeiten" + """(
-        id int NOT NULL AUTO_INCREMENT,
-        zeiten integer,
-        tn integer);
-        """
-        cursor.execute(sql_befehl)
-        cursor.close()
-        datenbank.commit()
-        datenbank.close()
     def test_tabelle_vorhanden(self,name,datenbank) :
         try:
             db = sqlite3.connect(datenbank)
@@ -653,9 +641,14 @@ class datenbank:
         sql_command ="Create Table " + tabel_name + "(" + spalten +");"
         self.cursor.execute(sql_command)
         self.db.commit()
-    def insert_into_zeiten(self,zeit):
-        sql_command = "IN"
-
+    def insert_into_zeiten(self,zeit,diziplin_nr):
+        sql_command = "INSERT INTO zeiten (zeit,disziplin_nr) VALUES(?,?);"
+        self.cursor.execute(sql_command,(zeit,diziplin_nr))
+        self.db.commit()
+    def ad_tn_to_zeiten(self,start_nr,index):
+        sql_command ="INSERT INTO zeiten (Start_Nr) VALUES (?) Where index = ?;"
+        self.cursor.execute(sql_command,(start_nr,index))
+        self.db.commit()
 
 def main():
     if __name__ == '__main__':
