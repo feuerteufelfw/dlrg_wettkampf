@@ -573,24 +573,34 @@ def get_teilnehmer_list():
         teilnehmer_list.append(teilnehmer)
     return teilnehmer_list
 class datenbank:
-    def get_cursor(self,db):
-        datenbank = sqlite3.connect(db)
-        cursor = datenbank.cursor()
-        return datenbank,cursor
-    def close_db(self,db,cursor):
-        cursor.close()
-        db.commit()
-        db.close()
+    def __init__(self,db):
+        self.db = sqlite3.connect(db)
+        self.cursor = self.db.cursor()
+    def close_db(self):
+        self.cursor.close()
+        self.db.commit()
+        self.db.close()
+    def get_disziplin_nr(self,,disziplin):
+        sql_befehl = f"Select Disziplin_NR from Disziplin Where Name = disziplin"
+        self.cursor.execute(sql_befehl)
+        disziplin_nr = self.cursor.fetchall()
+        return disziplin_nr
+    def ad_teilnehmer(self,name,vorname,geburtsdatum,verein,disziplin,geschlecht):
+        Ak = cal_ak(geburtsdatum)
+        sql_befehl = "INSERT INTO Teilnehmer Values (?,?,?,?,?)"
+        self.cursor.execute(sql_befehl,(vorname,name,Ak,geburtsdatum,verein,geschlecht))#auto increment wert zurückgeben
+        self.db.commit()
+        disziplin_nr = self.get_disziplin_nr(self,disziplin)
+        #bekomme höchste tn für disziplin, +1
+        sql_befehl = "Insert Into schwimmt Values (?,?,?)"
+        self.cursor.execute(sql_befehl,(Tn,disziplin_nr,Start_Nr))
+        self.db.commit()
+    def sort_table(self,disziplin):
+        disziplin_nr = self.get_disziplin_nr(self,disziplin)
+        #get alles aks zu disziplin
+        for ak in aks:
+            #sortiere nach zeit wenn ak = ak in tabelle
 
-    def ad_teilnehmer_nummer(self,index,tn,disziplin):
-        datenbank = sqlite3.connect("wettkampf.db")
-        cursor = datenbank.cursor()
-        tabelle = disziplin + "_zeiten"
-        sql_befehl = "Update " +  tabelle + "SET tn = " + tn +" wehre index = " +  index + ";"
-        cursor.execute(sql_befehl)
-        cursor.close()
-        datenbank.commit()
-        datenbank.close()
     def create_zeiten_tabelle(self, disziplin):
         datenbank = sqlite3.connect("wettkampf.db")
         cursor = datenbank.cursor()
@@ -616,6 +626,8 @@ class datenbank:
             return True
         except:
             return False
+    def get_disziplin_nr(self,Name_disziplin):
+
     def erstelle_tabelle(self,db,cursor,tabel_name,spalten):
         sql_command ="Create Table " + tabel_name + "(" + spalten +");"
         cursor.execute(sql_command)
