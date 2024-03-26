@@ -580,7 +580,7 @@ class datenbank:
         self.cursor.close()
         self.db.commit()
         self.db.close()
-    def get_disziplin_nr(self,,disziplin):
+    def get_disziplin_nr(self,disziplin):
         sql_befehl = f"Select Disziplin_NR from Disziplin Where Name = disziplin"
         self.cursor.execute(sql_befehl)
         disziplin_nr = self.cursor.fetchall()
@@ -598,7 +598,8 @@ class datenbank:
     def sort_table(self,disziplin):
         disziplin_nr = self.get_disziplin_nr(self,disziplin)
         #get alles aks zu disziplin
-        for ak in aks:
+        for ak in disziplin_nr:
+            print("hi")
             #sortiere nach zeit wenn ak = ak in tabelle
 
     def create_zeiten_tabelle(self, disziplin):
@@ -613,7 +614,6 @@ class datenbank:
         cursor.close()
         datenbank.commit()
         datenbank.close()
-
     def test_tabelle_vorhanden(self,name,datenbank) :
         try:
             db = sqlite3.connect(datenbank)
@@ -627,18 +627,25 @@ class datenbank:
         except:
             return False
     def get_disziplin_nr(self,Name_disziplin):
+        sql_command = "SELECT Disziplin_NR From Disziplin Where Disziplin = '%s';" %(Name_disziplin)
+        print(sql_command)
+        self.cursor.execute(sql_command)
+        return self.cursor.fetchone()
+    def insert_new_disziplin(self,Disziplin,Urkunde):
+        sql_command = "INSERT INTO Disziplin (Urkunde,Disziplin) VALUES(?,?);"
+        self.cursor.execute(sql_command,(Urkunde,Disziplin))
+        self.db.commit()
 
-    def erstelle_tabelle(self,db,cursor,tabel_name,spalten):
+    def erstelle_tabelle(self,tabel_name,spalten):
         sql_command ="Create Table " + tabel_name + "(" + spalten +");"
-        cursor.execute(sql_command)
-        db.commit()
+        self.cursor.execute(sql_command)
+        self.db.commit()
 
 
 
 def main():
     if __name__ == '__main__':
-
-        test_tabelle_vorhanden("Teilnehmer","wettkampf.db")
+        db = datenbank("wettkampf.db")
         #loade_ak()
         startup()
         loade_config()
